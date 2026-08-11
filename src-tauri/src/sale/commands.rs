@@ -1,7 +1,7 @@
 use crate::db::DbState;
-use crate::models::{NewSale, SaleReceipt};
-use crate::repositories::SqliteSaleRepository;
-use crate::services::SaleService;
+use crate::sale::model::{NewSale, SaleReceipt};
+use crate::sale::repository::SqliteSaleRepository;
+use crate::sale::service::SaleService;
 use tauri::State;
 
 #[tauri::command]

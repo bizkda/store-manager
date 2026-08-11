@@ -1,6 +1,6 @@
 use crate::db::DbState;
-use crate::models::{NewProduct, Product};
-use crate::repositories::{ProductRepository, SqliteProductRepository};
+use crate::product::model::{NewProduct, Product};
+use crate::product::repository::{ProductRepository, SqliteProductRepository};
 use tauri::State;
 use uuid::Uuid;
 

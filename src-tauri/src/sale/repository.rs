@@ -1,4 +1,4 @@
-use crate::models::{LigneVenteInput, Sale};
+use crate::sale::model::{LigneVenteInput, Sale};
 use rusqlite::{params, Connection};
 
 pub trait SaleRepository {

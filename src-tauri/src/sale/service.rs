@@ -1,5 +1,5 @@
-use crate::models::{NewSale, SaleReceipt};
-use crate::repositories::SaleRepository;
+use crate::sale::model::{NewSale, SaleReceipt};
+use crate::sale::repository::SaleRepository;
 use rusqlite::Connection;
 use chrono::Utc;
 use uuid::Uuid;

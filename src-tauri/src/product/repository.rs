@@ -1,5 +1,5 @@
 use rusqlite::OptionalExtension;
-use crate::models::{NewProduct, Product};
+use crate::product::model::{NewProduct, Product};
 use rusqlite::Connection;
 
 pub trait ProductRepository {
