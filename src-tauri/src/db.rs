@@ -8,7 +8,7 @@ const SCHEMA: &str = "
 CREATE TABLE IF NOT EXISTS vente (
     id              TEXT PRIMARY KEY,
     date_vente      TEXT NOT NULL,
-    total           REAL NOT NULL DEFAULT 0,
+    total           REAL NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS produit (
