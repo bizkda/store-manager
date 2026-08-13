@@ -50,29 +50,53 @@ export function SaleCard({ products, onSaleComplete }: SaleCardProps) {
   }
 
   return (
-    <div className="card">
-      <h2>Commencer une vente</h2>
-      {message && <p>{message}</p>}
+  <div className="rounded-2xl bg-white p-5 shadow-sm">
+    <h2 className="mb-2 text-lg font-semibold text-gray-800">Commencer une vente</h2>
+    {message && (
+      <p className="mb-3 rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-700">{message}</p>
+    )}
 
-      <ul>
-        {products.map((p) => (
-          <li key={p.id}>
+    <ul className="flex flex-col gap-2">
+      {products.map((p) => (
+        <li
+          key={p.id}
+          className="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2"
+        >
+          <span className="text-sm text-gray-700">
             {p.nom} — {p.prix_vente} — stock: {p.quantite}
-            <button onClick={() => addToCart(p)}>Ajouter</button>
-          </li>
-        ))}
-      </ul>
+          </span>
+          <button
+            onClick={() => addToCart(p)}
+            className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white active:scale-95 transition"
+          >
+            Ajouter
+          </button>
+        </li>
+      ))}
+    </ul>
 
-      <h3>Panier</h3>
-      <ul>
-        {cart.map((i) => (
-          <li key={i.product.id}>
-            {i.product.nom} x{i.quantite} = {(i.quantite * i.product.prix_vente).toFixed(2)}
-          </li>
-        ))}
-      </ul>
-      <p>Total: {total.toFixed(2)}</p>
-      {cart.length > 0 && <button onClick={handleCheckout}>Checkout</button>}
-    </div>
-  );
+    <h3 className="mt-5 mb-2 text-base font-semibold text-gray-800">Panier</h3>
+    <ul className="flex flex-col gap-1">
+      {cart.map((i) => (
+        <li key={i.product.id} className="flex justify-between text-sm text-gray-600">
+          <span>{i.product.nom} x{i.quantite}</span>
+          <span>{(i.quantite * i.product.prix_vente).toFixed(2)}</span>
+        </li>
+      ))}
+    </ul>
+
+    <p className="mt-3 text-right text-lg font-bold text-gray-800">
+      Total: {total.toFixed(2)}
+    </p>
+
+    {cart.length > 0 && (
+      <button
+        onClick={handleCheckout}
+        className="mt-4 w-full rounded-lg bg-emerald-600 py-3 text-base font-semibold text-white active:scale-95 transition"
+      >
+        Checkout
+      </button>
+    )}
+  </div>
+);
 }

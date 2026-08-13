@@ -31,16 +31,53 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
   }
 
   return (
-    <div className="card">
-      <h2>Ajouter un produit</h2>
-      <form onSubmit={handleSubmit}>
-        <input placeholder="Nom" value={nom} onChange={(e) => setNom(e.target.value)} required />
-        <input placeholder="Code-barre" value={codeBarre} onChange={(e) => setCodeBarre(e.target.value)} />
-        <input placeholder="Prix vente" type="number" value={prixVente} onChange={(e) => setPrixVente(e.target.value)} required />
-        <input placeholder="Prix achat" type="number" value={prixAchat} onChange={(e) => setPrixAchat(e.target.value)} required />
-        <input placeholder="Quantité" type="number" value={quantite} onChange={(e) => setQuantite(e.target.value)} required />
-        <button type="submit">Ajouter</button>
-      </form>
-    </div>
-  );
+  <div className="rounded-2xl bg-white p-5 shadow-sm">
+    <h2 className="mb-4 text-lg font-semibold text-gray-800">Ajouter un produit</h2>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+      <input
+        placeholder="Nom"
+        value={nom}
+        onChange={(e) => setNom(e.target.value)}
+        required
+        className="rounded-lg border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+      />
+      <input
+        placeholder="Code-barre"
+        value={codeBarre}
+        onChange={(e) => setCodeBarre(e.target.value)}
+        className="rounded-lg border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+      />
+      <input
+        placeholder="Prix vente"
+        type="number"
+        value={prixVente}
+        onChange={(e) => setPrixVente(e.target.value)}
+        required
+        className="rounded-lg border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+      />
+      <input
+        placeholder="Prix achat"
+        type="number"
+        value={prixAchat}
+        onChange={(e) => setPrixAchat(e.target.value)}
+        required
+        className="rounded-lg border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+      />
+      <input
+        placeholder="Quantité"
+        type="number"
+        value={quantite}
+        onChange={(e) => setQuantite(e.target.value)}
+        required
+        className="rounded-lg border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+      />
+      <button
+        type="submit"
+        className="mt-2 rounded-lg bg-emerald-600 py-3 text-base font-semibold text-white active:scale-95 transition"
+      >
+        Ajouter
+      </button>
+    </form>
+  </div>
+);
 }
