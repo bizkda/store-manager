@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { addProduct, Product } from "../../api/products";
+import { scan, Format, requestPermissions } from "@tauri-apps/plugin-barcode-scanner";
 
 interface AddProductCardProps {
   onProductAdded: () => void;
@@ -30,6 +31,24 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
     onProductAdded();
   }
 
+async function handleScan() {
+  try {
+    const permission = await requestPermissions();
+    if (permission !== "granted") {
+      console.error("Permission caméra refusée");
+      return;
+    }
+
+    const result = await scan({
+      windowed: false,
+      formats: [Format.EAN13, Format.EAN8, Format.QRCode],
+    });
+    setCodeBarre(result.content);
+  } catch (e: any) {
+    console.error("Scan échoué:", e?.message);
+  }
+}
+
   return (
   <div className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="mb-4 text-lg font-semibold text-gray-800">Ajouter un produit</h2>
@@ -47,6 +66,13 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
         onChange={(e) => setCodeBarre(e.target.value)}
         className="rounded-lg border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
       />
+      <button
+        type="button"
+        onClick={handleScan}
+        className="rounded-lg bg-blue-600 px-4 py-3 text-base font-medium text-white active:scale-95 transition"
+      >
+        📷 Scanner
+      </button>
       <input
         placeholder="Prix vente"
         type="number"

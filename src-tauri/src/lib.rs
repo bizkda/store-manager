@@ -15,6 +15,10 @@ pub fn run() {
         .setup(|app| {
             let db_state = db::init_db(app);
             app.manage(db_state);
+
+            #[cfg(mobile)]
+            app.handle().plugin(tauri_plugin_barcode_scanner::init())?;
+
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())
