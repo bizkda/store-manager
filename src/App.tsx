@@ -4,7 +4,7 @@ import { AddProductCard } from "./features/product/AddProductCard";
 import { SaleCard } from "./features/sale/SaleCard";
 import "./App.css";
 
-type View = "menu" | "add-product" | "sale";
+type View = "menu" | "add-product" | "sale" ;
 
 function App() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -17,32 +17,23 @@ function App() {
   useEffect(refreshProducts, []);
   // the views thta the app has
   if (view === "add-product") {
-  return (
-    <main className="min-h-screen bg-gray-50 p-5">
-      <button
-        onClick={() => setView("menu")}
-        className="mb-4 text-blue-600 font-medium"
-      >
-        ← Retour
-      </button>
-      <AddProductCard onProductAdded={refreshProducts} />
-    </main>
-  );
+  return <AddProductCard onProductAdded={refreshProducts} />;
 }
 
-if (view === "sale") {
-  return (
-    <main className="min-h-screen bg-gray-50 p-5">
-      <button
-        onClick={() => setView("menu")}
-        className="mb-4 text-blue-600 font-medium"
-      >
-        ← Retour
-      </button>
-      <SaleCard products={products} onSaleComplete={refreshProducts} />
-    </main>
-  );
-}
+  if (view === "sale") {
+    return (
+      <main className="min-h-screen bg-gray-50 p-5">
+        <button
+          onClick={() => setView("menu")}
+          className="mb-4 text-blue-600 font-medium"
+        >
+          ← Retour
+        </button>
+        <SaleCard products={products} onSaleComplete={refreshProducts} />
+      </main>
+    );
+  }
+
 
   return (
     <main style={{ padding: 60}}>
