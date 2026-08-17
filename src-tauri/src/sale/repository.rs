@@ -37,7 +37,7 @@ impl SaleRepository for SqliteSaleRepository {
         let tx = conn.transaction().map_err(|e| e.to_string())?;
 
         tx.execute(
-            "INSERT INTO vente (id, date_vente, total, mode_paiement) VALUES (?1, ?2, ?3, ?4)",
+            "INSERT INTO vente (id, date_vente, total) VALUES (?1, ?2, ?3)",
             params![sale_id, date_vente, total ],
         )
         .map_err(|e| e.to_string())?;

@@ -21,7 +21,8 @@ function App() {
       <main>
         <button
           onClick={() => setView("menu")}
-          className="mb-4 text-blue-600 font-medium mt-6"
+          style={{ fontFamily: "var(--gesso-font-body)", color: "var(--gesso-primary)" }}
+          className="mb-4 mt-6 flex items-center gap-1 text-base font-bold"
         >
           ← Retour
         </button>
@@ -36,7 +37,8 @@ function App() {
       <main>
         <button
           onClick={() => setView("menu")}
-          className="mb-4 text-blue-600 font-medium mt-6"
+          style={{ fontFamily: "var(--gesso-font-body)", color: "var(--gesso-primary)" }}
+          className="mb-4 mt-6 flex items-center gap-1 text-base font-bold"
         >
           ← Retour
         </button>
@@ -46,25 +48,79 @@ function App() {
   }
 
 
-  return (
-    <main style={{ padding: 60}}>
-    <h1 className="text-2xl font-bold text-blue-600 text-center">Store Manager</h1>
-      <div style={{ display: "flex", flexDirection: "column", gap: 60  , paddingBlockStart: 60}}>
-       <button
-          onClick={() => setView("sale")}
-          className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-5 text-lg font-semibold text-white shadow-md active:scale-95 transition"
-        >
-          🧾 Commencer une vente
-        </button>
-        <button
-          onClick={() => setView("add-product")}
-          className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-5 text-lg font-semibold text-white shadow-md active:scale-95 transition"
-        >
-          ➕ Ajouter un produit
-        </button>
+ return (
+  <main
+    style={{ background: "var(--gesso-canvas)" }}
+    className="min-h-screen px-6 pt-10 pb-6"
+  >
+    <div className="mb-8">
+      <p style={{ fontFamily: "var(--gesso-font-body)" }} className="text-sm ">
+        Bonjour!!!!!!!!!!!!!!!!!!!
+      </p>
+      <h1
+        style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 900 }}
+        className="text-3xl "
+      >
+        Store Manager
+      </h1>
+    </div>
+
+    <div className="grid grid-cols-2 gap-4">
+      <button
+        onClick={() => setView("add-product")}
+        style={{ background: "var(--gesso-primary)", borderRadius: "var(--gesso-radius-md)" }}
+        className="flex flex-col items-start gap-3 p-5 text-left shadow-sm active:scale-95 transition"
+      >
+        <span className="text-3xl">📦</span>
+        <div>
+          <div
+            style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 900 }}
+            className="text-white text-lg leading-tight"
+          >
+            Ajouter un produit
+          </div>
+          <div className="text-white/80 text-xs mt-1">Nouveau dans le stock</div>
+        </div>
+      </button>
+
+      <button
+        onClick={() => setView("sale")}
+        style={{ background: "var(--gesso-secondary)", borderRadius: "var(--gesso-radius-md)" }}
+        className="flex flex-col items-start gap-3 p-5 text-left shadow-sm active:scale-95 transition"
+      >
+        <span className="text-3xl">🛒</span>
+        <div>
+          <div
+            style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 900 }}
+            className="text-white text-lg leading-tight"
+          >
+            Faire une vente
+          </div>
+          <div className="text-white/80 text-xs mt-1">Encaisser un client</div>
+        </div>
+      </button>
+    </div>
+
+    <p
+      style={{ fontFamily: "var(--gesso-font-body)" }}
+      className="mt-8 mb-3 text-xs font-bold uppercase tracking-wide "
+    >
+      Aujourd'hui
+    </p>
+
+    <div
+      style={{ background: "var(--gesso-surface)", borderRadius: "var(--gesso-radius-md)" }}
+      className="p-4"
+    >
+      <div className="flex items-center justify-between py-2">
+        <span className="text-sm ">Produits en stock</span>
+        <span style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 900 }} className="text-lg">
+          {products.length}
+        </span>
       </div>
-    </main>
-  );
+    </div>
+  </main>
+);
 }
 
 export default App;

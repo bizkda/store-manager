@@ -7,7 +7,6 @@ export interface LigneVenteInput {
 }
 
 export interface NewSale {
-  mode_paiement: string;
   items: LigneVenteInput[];
 }
 

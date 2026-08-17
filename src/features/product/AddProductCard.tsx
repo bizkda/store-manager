@@ -60,12 +60,22 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
     onProductAdded();
   }
 
+  const inputStyle = {
+    background: "var(--gesso-surface)",
+    border: "1px solid var(--gesso-neutral-300)",
+    borderRadius: "var(--gesso-radius-md)",
+    fontFamily: "var(--gesso-font-body)",
+  };
+
   return (
     <div className="flex h-screen flex-col">
       {/* Moitié haute — transparente, la caméra native est visible derrière */}
       <div className="relative h-1/5 min-h-0 overflow-hidden bg-transparent">
         {scanning && (
-          <p className="absolute top-6 left-0 right-0 text-center text-sm font-medium text-white drop-shadow-lg">
+          <p
+            style={{ fontFamily: "var(--gesso-font-body)" }}
+            className="absolute top-6 left-0 right-0 text-center text-sm font-medium text-white drop-shadow-lg "
+          >
             Visez le code-barre du produit
           </p>
         )}
@@ -73,34 +83,55 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
           <button
             type="button"
             onClick={startScan}
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white"
+            style={{ background: "var(--gesso-primary)", borderRadius: "var(--gesso-radius-md)" }}
+            className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 text-sm font-medium text-white "
           >
             🔄 Réessayer le scan
           </button>
         )}
       </div>
 
-      {/* Moitié basse — opaque, recouvre la caméra, contient le formulaire */}
-      <div className="flex h-4/5 min-h-0 flex-col bg-white">
-        <h2 className="mb-3 text-lg font-semibold text-gray-800">Ajouter un produit</h2>
+      {/* Moitié basse — fiche produit, style carte du design system */}
+      <div
+        style={{
+          background: "var(--gesso-canvas)",
+          borderTopLeftRadius: "var(--gesso-radius-lg)",
+          borderTopRightRadius: "var(--gesso-radius-lg)",
+          boxShadow: "var(--gesso-shadow-lg)",
+        }}
+        className="flex h-4/5 min-h-0 flex-col overflow-y-auto p-6 "
+      >
+        <h2
+          style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 900, color: "var(--gesso-fg)" }}
+          className="mb-4 text-xl"
+        >
+          Ajouter un produit
+        </h2>
+
         {codeBarre && (
-          <p className="mb-3 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700">
+          <p
+            style={{ background: "rgba(20,147,67,0.1)", color: "var(--gesso-success)", fontFamily: "var(--gesso-font-body)" }}
+            className="mb-4 rounded-lg px-3 py-2 text-sm font-medium"
+          >
             Code scanné: {codeBarre}
           </p>
         )}
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <input
             placeholder="Nom"
             value={nom}
             onChange={(e) => setNom(e.target.value)}
             required
-            className="rounded-lg border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+            style={inputStyle}
+            className="px-4 py-4 text-base outline-none"
           />
           <input
             placeholder="Code-barre"
             value={codeBarre}
             onChange={(e) => setCodeBarre(e.target.value)}
-            className="rounded-lg border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+            style={inputStyle}
+            className="px-4 py-4 text-base outline-none"
           />
           <input
             placeholder="Prix vente"
@@ -108,7 +139,8 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
             value={prixVente}
             onChange={(e) => setPrixVente(e.target.value)}
             required
-            className="rounded-lg border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+            style={inputStyle}
+            className="px-4 py-4 text-base outline-none"
           />
           <input
             placeholder="Prix achat"
@@ -116,7 +148,8 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
             value={prixAchat}
             onChange={(e) => setPrixAchat(e.target.value)}
             required
-            className="rounded-lg border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+            style={inputStyle}
+            className="px-4 py-4 text-base outline-none"
           />
           <input
             placeholder="Quantité"
@@ -124,11 +157,17 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
             value={quantite}
             onChange={(e) => setQuantite(e.target.value)}
             required
-            className="rounded-lg border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none"
+            style={inputStyle}
+            className="px-4 py-4 text-base outline-none"
           />
           <button
             type="submit"
-            className="mt-2 rounded-lg bg-emerald-600 py-3 text-base font-semibold text-white active:scale-95 transition"
+            style={{
+              background: "var(--gesso-primary)",
+              borderRadius: "var(--gesso-radius-md)",
+              fontFamily: "var(--gesso-font-body)",
+            }}
+            className="mt-2 py-4 text-base font-bold text-white active:scale-95 transition"
           >
             Ajouter
           </button>

@@ -1,1 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;700;900&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=switzer@400,700,900&display=swap');
 @import "tailwindcss";
+
+:root {
+  --gesso-canvas: #f5fcff;
+  --gesso-surface: #ebebeb;
+  --gesso-surface-elevated: #e2e2e2;
+  --gesso-fg: #1b1b1f;
+  --gesso-fg-muted: #616369;
+  --gesso-primary: #5b3fe4;
+  --gesso-on-accent: #ffffff;
+  --gesso-secondary: #e85a3c;
+  --gesso-font-display: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --gesso-font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;--gesso-radius-md: 16px;
+  --gesso-radius-lg: 24px;
+  --gesso-neutral-300: #b5b1b1;
+  --gesso-success: #149343;
+  --gesso-shadow-lg: 0 1px 2px rgba(0,0,0,0.04);
+
+}
+html, body, #root {
+  font-family: var(--gesso-font-body);
+  color: var(--gesso-fg);
+}
