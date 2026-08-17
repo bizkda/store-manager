@@ -63,7 +63,7 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
   return (
     <div className="flex h-screen flex-col">
       {/* Moitié haute — transparente, la caméra native est visible derrière */}
-      <div className="relative h-1/2 w-full bg-transparent">
+      <div className="relative h-1/5 min-h-0 overflow-hidden bg-transparent">
         {scanning && (
           <p className="absolute top-6 left-0 right-0 text-center text-sm font-medium text-white drop-shadow-lg">
             Visez le code-barre du produit
@@ -81,7 +81,7 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
       </div>
 
       {/* Moitié basse — opaque, recouvre la caméra, contient le formulaire */}
-      <div className="h-1/2 w-full overflow-y-auto rounded-t-3xl bg-white p-5 shadow-lg">
+      <div className="flex h-4/5 min-h-0 flex-col bg-white">
         <h2 className="mb-3 text-lg font-semibold text-gray-800">Ajouter un produit</h2>
         {codeBarre && (
           <p className="mb-3 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700">

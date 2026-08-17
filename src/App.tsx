@@ -17,15 +17,26 @@ function App() {
   useEffect(refreshProducts, []);
   // the views thta the app has
   if (view === "add-product") {
-  return <AddProductCard onProductAdded={refreshProducts} />;
+    return (
+      <main>
+        <button
+          onClick={() => setView("menu")}
+          className="mb-4 text-blue-600 font-medium mt-6"
+        >
+          ← Retour
+        </button>
+        <AddProductCard onProductAdded={refreshProducts}/>
+    
+      </main>
+    );
 }
 
   if (view === "sale") {
     return (
-      <main className="min-h-screen bg-gray-50 p-5">
+      <main>
         <button
           onClick={() => setView("menu")}
-          className="mb-4 text-blue-600 font-medium"
+          className="mb-4 text-blue-600 font-medium mt-6"
         >
           ← Retour
         </button>
