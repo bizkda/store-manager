@@ -23,3 +23,13 @@ pub fn add_product(state: State<DbState>, product: NewProduct) -> Result<String,
     SqliteProductRepository.insert(&conn, &product, &id)?;
     Ok(id)
 }
+#[tauri::command]
+pub fn search_products(
+    state: State<DbState>,
+    nom: Option<String>,
+    prix_min: Option<f64>,
+    prix_max: Option<f64>,
+) -> Result<Vec<Product>, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    SqliteProductRepository.search(&conn, nom.as_deref(), prix_min, prix_max)
+}

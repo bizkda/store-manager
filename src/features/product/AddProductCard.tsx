@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { addProduct } from "../../api/products";
+import { addProduct, getProductByBarcode } from "../../api/products";
 import { scan, cancel, Format, requestPermissions } from "@tauri-apps/plugin-barcode-scanner";
 
 interface AddProductCardProps {
@@ -13,34 +13,53 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
   const [prixAchat, setPrixAchat] = useState("");
   const [quantite, setQuantite] = useState("");
   const [scanning, setScanning] = useState(true);
-
+  const [message, setMessage] = useState("");
   async function startScan() {
-    setScanning(true);
-    try {
-      const permission = await requestPermissions();
-      if (permission !== "granted") {
-        console.error("Permission caméra refusée");
-        setScanning(false);
-        return;
-      }
-      const result = await scan({
-        windowed: true,
-        formats: [Format.EAN13, Format.EAN8, Format.QRCode],
-      });
-      setCodeBarre(result.content);
+  setScanning(true);
+  try {
+    const permission = await requestPermissions();
+    if (permission !== "granted") {
+      console.error("Permission caméra refusée");
       setScanning(false);
-    } catch (e: any) {
-      console.error("Scan échoué:", e?.message);
-      setScanning(false);
+      return;
     }
-  }
+    const result = await scan({
+      windowed: true,
+      formats: [Format.EAN13, Format.EAN8],
+    });
+    setCodeBarre(result.content);
 
-  useEffect(() => {
-    startScan();
+    const existing = await getProductByBarcode(result.content);
+    if (existing) {
+      setMessage(`Ce produit existe déjà : ${existing.nom}`);
+    } else {
+      setMessage("");
+    }
+  } catch (e: any) {
+    console.error("Scan échoué:", e?.message);
+  } finally {
+    setScanning(false);
+  }
+}
+
+ useEffect(() => {
+    let active = true;
+
+    async function scanLoop() {
+      while (active) {
+        await startScan();
+        await new Promise((resolve) => setTimeout(resolve, 200));
+      }
+    }
+
+    scanLoop();
+
     return () => {
+      active = false;
       cancel();
     };
   }, []);
+
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -79,7 +98,7 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
             Visez le code-barre du produit
           </p>
         )}
-        {!scanning && !codeBarre && (
+        {!scanning && !codeBarre && message &&  (
           <button
             type="button"
             onClick={startScan}
@@ -108,7 +127,7 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
           Ajouter un produit
         </h2>
 
-        {codeBarre && (
+        {codeBarre && !message && (
           <p
             style={{ background: "rgba(20,147,67,0.1)", color: "var(--gesso-success)", fontFamily: "var(--gesso-font-body)" }}
             className="mb-4 rounded-lg px-3 py-2 text-sm font-medium"
@@ -116,6 +135,20 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
             Code scanné: {codeBarre}
           </p>
         )}
+
+          {message && (
+            <p
+              style={{
+                background: "rgba(91,63,228,0.1)",
+                color: "var(--gesso-primary)",
+                fontFamily: "var(--gesso-font-body)",
+              }}
+              className="mb-4 rounded-lg px-3 py-2 text-sm font-medium"
+            >
+              {message}
+            </p>
+          )}
+        
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <input

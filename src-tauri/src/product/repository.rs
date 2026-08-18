@@ -7,6 +7,8 @@ pub trait ProductRepository {
     fn get_by_barcode(&self, conn: &Connection, code_barre: &str) -> Result<Option<Product>, String>;
     fn insert(&self, conn: &Connection, product: &NewProduct, id: &str) -> Result<(), String>;
     fn decrement_stock(&self, conn: &Connection, produit_id: &str, quantite: f64) -> Result<(), String>;
+    fn search(&self,conn: &Connection,nom: Option<&str>,prix_min: Option<f64>,prix_max: Option<f64>,) -> Result<Vec<Product>, String>;
+
 }
 
 pub struct SqliteProductRepository;
@@ -79,4 +81,52 @@ impl ProductRepository for SqliteProductRepository {
         .map_err(|e| e.to_string())?;
         Ok(())
     }
+
+
+    fn search(
+    &self,
+    conn: &Connection,
+    nom: Option<&str>,
+    prix_min: Option<f64>,
+    prix_max: Option<f64>,
+    ) -> Result<Vec<Product>, String> {
+        let mut query = String::from(
+            "SELECT id, nom, code_barre, prix_vente, prix_achat, quantite, seuil_reappro FROM produit WHERE 1=1"
+        );
+        let mut params: Vec<Box<dyn rusqlite::ToSql>> = Vec::new();
+
+        if let Some(n) = nom {
+            query.push_str(" AND nom LIKE ?");
+            params.push(Box::new(format!("%{}%", n)));
+        }
+        if let Some(min) = prix_min {
+            query.push_str(" AND prix_vente >= ?");
+            params.push(Box::new(min));
+        }
+        if let Some(max) = prix_max {
+            query.push_str(" AND prix_vente <= ?");
+            params.push(Box::new(max));
+        }
+        query.push_str(" ORDER BY nom");
+
+        let mut stmt = conn.prepare(&query).map_err(|e| e.to_string())?;
+        let params_refs: Vec<&dyn rusqlite::ToSql> = params.iter().map(|b| b.as_ref()).collect();
+
+        let rows = stmt
+            .query_map(params_refs.as_slice(), |r| {
+                Ok(Product {
+                    id: r.get(0)?,
+                    nom: r.get(1)?,
+                    code_barre: r.get(2)?,
+                    prix_vente: r.get(3)?,
+                    prix_achat: r.get(4)?,
+                    quantite: r.get(5)?,
+                    seuil_reappro: r.get(6)?,
+                })
+            })
+            .map_err(|e| e.to_string())?;
+
+        rows.collect::<Result<Vec<_>, _>>().map_err(|e| e.to_string())
+    }
+    
 }

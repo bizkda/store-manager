@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { getProductByBarcode, Product } from "../../api/products";
 import { checkout, NewSale } from "../../api/sales";
 import { scan, cancel, Format, requestPermissions } from "@tauri-apps/plugin-barcode-scanner";
+import { useProductSearch } from "./useProductSearch";
 
 interface CartItem {
   product: Product;
@@ -13,10 +14,11 @@ interface SaleCardProps {
   onSaleComplete: () => void;
 }
 
-export function SaleCard({ products, onSaleComplete }: SaleCardProps) {
+export function SaleCard({ onSaleComplete }: SaleCardProps) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [message, setMessage] = useState("");
   const [scanning, setScanning] = useState(false);
+  const { nom, setNom, prixMin, setPrixMin, prixMax, setPrixMax, results } = useProductSearch();
 
   async function startScan() {
     setScanning(true);
@@ -29,7 +31,7 @@ export function SaleCard({ products, onSaleComplete }: SaleCardProps) {
       }
       const result = await scan({
         windowed: true,
-        formats: [Format.EAN13, Format.EAN8, Format.QRCode],
+        formats: [Format.EAN13, Format.EAN8],
       });
 
       const product = await getProductByBarcode(result.content);
@@ -52,7 +54,7 @@ export function SaleCard({ products, onSaleComplete }: SaleCardProps) {
     async function scanLoop() {
       while (active) {
         await startScan();
-        await new Promise((resolve) => setTimeout(resolve, 800));
+        await new Promise((resolve) => setTimeout(resolve, 200));
       }
     }
 
@@ -76,6 +78,17 @@ export function SaleCard({ products, onSaleComplete }: SaleCardProps) {
     });
   }
 
+  function updateQuantity(productId: string, newQuantite: number) {
+    setCart((prev) => {
+      if (newQuantite <= 0) {
+        return prev.filter((i) => i.product.id !== productId);
+      }
+      return prev.map((i) =>
+        i.product.id === productId ? { ...i, quantite: newQuantite } : i
+      );
+    });
+  }
+
   const total = cart.reduce((sum, i) => sum + i.quantite * i.product.prix_vente, 0);
 
   async function handleCheckout() {
@@ -96,10 +109,17 @@ export function SaleCard({ products, onSaleComplete }: SaleCardProps) {
     }
   }
 
+  const searchInputStyle = {
+    background: "var(--gesso-surface)",
+    borderRadius: "var(--gesso-radius-md)",
+    fontFamily: "var(--gesso-font-body)",
+    color: "var(--gesso-fg)",
+  };
+
   return (
     <div className="flex h-screen flex-col" >
       {/* Zone caméra */}
-      <div className="relative h-1/5 min-h-0 overflow-hidden ">
+      <div className="relative h-1/5 min-h-0 overflow-hidden">
         {scanning && (
           <p
             style={{ fontFamily: "var(--gesso-font-body)" }}
@@ -120,6 +140,8 @@ export function SaleCard({ products, onSaleComplete }: SaleCardProps) {
         )}
       </div>
 
+      
+
       {/* Fiche vente */}
       <div
         style={{
@@ -131,10 +153,7 @@ export function SaleCard({ products, onSaleComplete }: SaleCardProps) {
         className="flex h-4/5 min-h-0 flex-col"
       >
         {/* Header */}
-        <div
-          style={{ borderBottom: "1px solid var(--gesso-divider)" }}
-          className="shrink-0 px-6 py-4"
-        >
+        <div style={{ borderBottom: "1px solid var(--gesso-divider)" }} className="shrink-0 px-6 py-4">
           <div className="flex items-center justify-between">
             <h2
               style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 900, color: "var(--gesso-fg)" }}
@@ -145,72 +164,170 @@ export function SaleCard({ products, onSaleComplete }: SaleCardProps) {
           </div>
           {message && (
             <p
-              style={{ background: "rgba(91,63,228,0.1)", color: "var(--gesso-primary)", fontFamily: "var(--gesso-font-body)" }}
+              style={{
+                background: "rgba(91,63,228,0.1)",
+                color: "var(--gesso-primary)",
+                fontFamily: "var(--gesso-font-body)",
+              }}
               className="mt-2 rounded-lg px-3 py-2 text-sm font-medium"
             >
               {message}
             </p>
           )}
         </div>
-
-        {/* Contenu scrollable */}
-        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
+        {/* Barre de recherche */}
+        
+        <div
+          style={{ background: "var(--gesso-canvas)" }}
+          className="flex flex-col gap-2 px-6 py-3"
+        >
+          {/* Nom */}
           <h3
             style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 700, color: "var(--gesso-fg-muted)" }}
             className="mb-2 text-xs uppercase tracking-wide"
           >
-            Produits
+            Recherche
           </h3>
 
-          <ul className="flex flex-col gap-2">
-            {products.map((p) => (
-              <li
-                key={p.id}
-                style={{ background: "var(--gesso-surface)", borderRadius: "var(--gesso-radius-md)" }}
-                className="flex items-center justify-between px-4 py-3"
+          <div className="">
+            <input
+              placeholder="Rechercher un nom..."
+              value={nom}
+              onChange={(e) => setNom(e.target.value)}
+              style={searchInputStyle}
+              className="w-full px-3 py-2 text-sm outline-none"
+            />
+          </div>
+
+          {/* Prix */}
+          <div className="flex gap-2 w-full">
+            <input
+              placeholder="Prix min"
+              type="number"
+              value={prixMin}
+              onChange={(e) => setPrixMin(e.target.value)}
+              style={searchInputStyle}
+              className="flex-1 min-w-0 px-3 py-2 text-sm outline-none"
+            />
+
+            <input
+              placeholder="Prix max"
+              type="number"
+              value={prixMax}
+              onChange={(e) => setPrixMax(e.target.value)}
+              style={searchInputStyle}
+              className="flex-1 min-w-0 px-3 py-2 text-sm outline-none"
+            />
+          </div>
+        </div>
+
+        {/* Contenu scrollable */}
+        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
+          {(nom || prixMin || prixMax) && (
+            <>
+              <h3
+                style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 700, color: "var(--gesso-fg-muted)" }}
+                className="mb-2 text-xs uppercase tracking-wide"
               >
-                <span style={{ fontFamily: "var(--gesso-font-body)", color: "var(--gesso-fg)" }} className="text-sm">
-                  {p.nom} — {p.prix_vente} — stock: {p.quantite}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => addToCart(p)}
-                  style={{ background: "var(--gesso-secondary)", borderRadius: "var(--gesso-radius-md)" }}
-                  className="px-3 py-1.5 text-sm font-medium text-white transition active:scale-95"
-                >
-                  Ajouter
-                </button>
-              </li>
-            ))}
-          </ul>
+                Produits
+              </h3>
+
+              <ul className="flex flex-col gap-2">
+                {results.map((p) => (
+                  <li
+                    key={p.id}
+                    style={{ background: "var(--gesso-surface)", borderRadius: "var(--gesso-radius-md)" }}
+                    className="flex items-center justify-between px-4 py-3"
+                  >
+                    <span style={{ fontFamily: "var(--gesso-font-body)", color: "var(--gesso-fg)" }} className="text-sm">
+                      {p.nom} — {p.prix_vente} DA — stock: {p.quantite}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => addToCart(p)}
+                      style={{ background: "var(--gesso-secondary)", borderRadius: "var(--gesso-radius-md)" }}
+                      className="px-3 py-1.5 text-sm font-medium text-white transition active:scale-95"
+                    >
+                      Ajouter
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
 
           <h3
-            style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 700, color: "var(--gesso-fg-muted)" }}
-            className="mb-2 mt-6 text-xs uppercase tracking-wide"
-          >
-            Panier
-          </h3>
+  style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 700, color: "var(--gesso-fg-muted)" }}
+  className="mb-2 mt-6 text-xs uppercase tracking-wide"
+>
+  Panier
+</h3>
 
-          {cart.length === 0 ? (
-            <p style={{ fontFamily: "var(--gesso-font-body)", color: "var(--gesso-fg-muted)" }} className="text-sm">
-              Aucun produit dans le panier
-            </p>
-          ) : (
-            <ul className="flex flex-col gap-2">
-              {cart.map((i) => (
-                <li
-                  key={i.product.id}
-                  style={{ background: "var(--gesso-surface)", borderRadius: "var(--gesso-radius-md)" }}
-                  className="flex justify-between px-4 py-3 text-sm"
-                >
-                  <span style={{ color: "var(--gesso-fg)" }}>{i.product.nom} × {i.quantite}</span>
-                  <span style={{ color: "var(--gesso-fg)", fontWeight: 700 }}>
-                    {(i.quantite * i.product.prix_vente).toFixed(2)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
+{cart.length === 0 ? (
+  <p style={{ fontFamily: "var(--gesso-font-body)", color: "var(--gesso-fg-muted)" }} className="text-sm">
+    Aucun produit dans le panier
+  </p>
+) : (
+  <ul className="flex flex-col gap-2">
+    {cart.map((i) => (
+      <li
+        key={i.product.id}
+        style={{ background: "var(--gesso-surface)", borderRadius: "var(--gesso-radius-md)" }}
+        className="flex flex-col gap-2 px-4 py-3 text-sm"
+      >
+        <div className="flex items-center justify-between">
+          <span style={{ fontFamily: "var(--gesso-font-body)", color: "var(--gesso-fg)" }}>
+            {i.product.nom}
+          </span>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => updateQuantity(i.product.id, i.quantite - 1)}
+              style={{ background: "var(--gesso-surface-elevated)", color: "var(--gesso-fg)" }}
+              className="h-7 w-7 rounded-full text-base font-bold"
+            >
+              −
+            </button>
+
+            <input
+              type="number"
+              value={i.quantite}
+              onChange={(e) => updateQuantity(i.product.id, parseFloat(e.target.value) || 0)}
+              style={{
+                background: "var(--gesso-surface-elevated)",
+                borderRadius: "var(--gesso-radius-md)",
+                fontFamily: "var(--gesso-font-body)",
+                color: "var(--gesso-fg)",
+              }}
+              className="w-12 px-1 py-1 text-center text-sm outline-none"
+            />
+
+            <button
+              type="button"
+              onClick={() => updateQuantity(i.product.id, i.quantite + 1)}
+              style={{ background: "var(--gesso-secondary)" }}
+              className="h-7 w-7 rounded-full text-base font-bold text-white"
+            >
+              +
+            </button>
+          </div>
+        </div>
+
+        <span
+          style={{
+            fontFamily: "var(--gesso-font-body)",
+            color: "var(--gesso-fg)",
+            fontWeight: 700,
+            textAlign: "right",
+          }}
+        >
+          {(i.quantite * i.product.prix_vente).toFixed(2)}
+        </span>
+      </li>
+    ))}
+  </ul>
+)}
         </div>
 
         {/* Footer checkout */}

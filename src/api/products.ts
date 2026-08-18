@@ -19,6 +19,18 @@ export interface NewProduct {
   seuil_reappro: number;
 }
 
+export function searchProducts(
+  nom?: string,
+  prixMin?: number,
+  prixMax?: number
+): Promise<Product[]> {
+  return invoke("search_products", {
+    nom: nom || null,
+    prixMin: prixMin ?? null,
+    prixMax: prixMax ?? null,
+  });
+}
+
 export function getProducts(): Promise<Product[]> {
   return invoke("get_products");
 }
