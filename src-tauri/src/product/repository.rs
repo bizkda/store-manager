@@ -8,7 +8,7 @@ pub trait ProductRepository {
     fn insert(&self, conn: &Connection, product: &NewProduct, id: &str) -> Result<(), String>;
     fn decrement_stock(&self, conn: &Connection, produit_id: &str, quantite: f64) -> Result<(), String>;
     fn search(&self,conn: &Connection,nom: Option<&str>,prix_min: Option<f64>,prix_max: Option<f64>,) -> Result<Vec<Product>, String>;
-
+    fn restock(&self,conn: &Connection,produit_id: &str,prix_vente: f64,prix_achat: f64,quantite_ajoutee: f64,) -> Result<(), String>; 
 }
 
 pub struct SqliteProductRepository;
@@ -128,5 +128,20 @@ impl ProductRepository for SqliteProductRepository {
 
         rows.collect::<Result<Vec<_>, _>>().map_err(|e| e.to_string())
     }
+    fn restock(
+    &self,
+    conn: &Connection,
+    produit_id: &str,
+    prix_vente: f64,
+    prix_achat: f64,
+    quantite_ajoutee: f64,
+) -> Result<(), String> {
+    conn.execute(
+        "UPDATE produit SET prix_vente = ?1, prix_achat = ?2, quantite = quantite + ?3 WHERE id = ?4",
+        (prix_vente, prix_achat, quantite_ajoutee, produit_id),
+    )
+    .map_err(|e| e.to_string())?;
+    Ok(())
+}
     
 }

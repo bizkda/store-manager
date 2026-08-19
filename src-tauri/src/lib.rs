@@ -28,6 +28,7 @@ pub fn run() {
             product::commands::get_product_by_barcode,
             product::commands::add_product,
             product::commands::search_products,
+            product::commands::restock_product,
             sale::commands::checkout,
         ])
         .run(tauri::generate_context!())

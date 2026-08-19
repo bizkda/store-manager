@@ -33,3 +33,15 @@ pub fn search_products(
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     SqliteProductRepository.search(&conn, nom.as_deref(), prix_min, prix_max)
 }
+
+#[tauri::command]
+pub fn restock_product(
+    state: State<DbState>,
+    produit_id: String,
+    prix_vente: f64,
+    prix_achat: f64,
+    quantite_ajoutee: f64,
+) -> Result<(), String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    SqliteProductRepository.restock(&conn, &produit_id, prix_vente, prix_achat, quantite_ajoutee)
+}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { addProduct, getProductByBarcode } from "../../api/products";
+import { addProduct, getProductByBarcode , restockProduct ,Product} from "../../api/products";
 import { scan, cancel, Format, requestPermissions } from "@tauri-apps/plugin-barcode-scanner";
+
 
 interface AddProductCardProps {
   onProductAdded: () => void;
@@ -14,6 +15,13 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
   const [quantite, setQuantite] = useState("");
   const [scanning, setScanning] = useState(true);
   const [message, setMessage] = useState("");
+  const [existingProduct, setExistingProduct] = useState<Product | null>(null);
+  const [restockPrixVente, setRestockPrixVente] = useState("");
+  const [restockPrixAchat, setRestockPrixAchat] = useState("");
+  const [restockQte, setRestockQte] = useState("");
+
+  
+
   async function startScan() {
   setScanning(true);
   try {
@@ -30,8 +38,12 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
     setCodeBarre(result.content);
 
     const existing = await getProductByBarcode(result.content);
+    setExistingProduct(existing);
+
     if (existing) {
       setMessage(`Ce produit existe déjà : ${existing.nom}`);
+      setRestockPrixVente(existing.prix_vente.toString());
+      setRestockPrixAchat(existing.prix_achat.toString());
     } else {
       setMessage("");
     }
@@ -42,13 +54,29 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
   }
 }
 
+async function handleRestock(e: React.FormEvent) {
+  e.preventDefault();
+  if (!existingProduct) return;
+  await restockProduct(
+    existingProduct.id,
+    parseFloat(restockPrixVente) || existingProduct.prix_vente,
+    parseFloat(restockPrixAchat) || existingProduct.prix_achat,
+    parseFloat(restockQte) || 0
+  );
+  setExistingProduct(null);
+  setCodeBarre("");
+  setMessage("");
+  setRestockQte("");
+  onProductAdded();
+}
+
  useEffect(() => {
     let active = true;
 
     async function scanLoop() {
       while (active) {
         await startScan();
-        await new Promise((resolve) => setTimeout(resolve, 200));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       }
     }
 
@@ -59,7 +87,7 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
       cancel();
     };
   }, []);
-
+ 
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -148,9 +176,53 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
               {message}
             </p>
           )}
-        
+        {existingProduct ? (
+  <form onSubmit={handleRestock} className="flex flex-col gap-3">
+    <div style={{ background: "var(--gesso-surface)", borderRadius: "var(--gesso-radius-md)" }} className="p-4">
+      <p style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 900, color: "var(--gesso-fg)" }} className="text-lg">
+        {existingProduct.nom}
+      </p>
+      <p style={{ color: "var(--gesso-fg-muted)" }} className="text-sm">
+        Stock actuel : {existingProduct.quantite}
+      </p>
+    </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+    <input
+      placeholder="Prix vente"
+      type="number"
+      value={restockPrixVente}
+      onChange={(e) => setRestockPrixVente(e.target.value)}
+      style={inputStyle}
+      className="px-4 py-4 text-base outline-none"
+    />
+    <input
+      placeholder="Prix achat"
+      type="number"
+      value={restockPrixAchat}
+      onChange={(e) => setRestockPrixAchat(e.target.value)}
+      style={inputStyle}
+      className="px-4 py-4 text-base outline-none"
+    />
+    <input
+      placeholder="Quantité à ajouter"
+      type="number"
+      value={restockQte}
+      onChange={(e) => setRestockQte(e.target.value)}
+      required
+      style={inputStyle}
+      className="px-4 py-4 text-base outline-none"
+    />
+
+    <button
+      type="submit"
+      style={{ background: "var(--gesso-secondary)", borderRadius: "var(--gesso-radius-md)" }}
+      className="mt-2 py-4 text-base font-bold text-white active:scale-95 transition"
+    >
+      Mettre à jour
+    </button>
+  </form>
+) : (
+   <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <input
             placeholder="Nom"
             value={nom}
@@ -205,6 +277,9 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
             Ajouter
           </button>
         </form>
+)}
+
+       
       </div>
     </div>
   );

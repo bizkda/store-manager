@@ -30,6 +30,14 @@ export function searchProducts(
     prixMax: prixMax ?? null,
   });
 }
+export function restockProduct(
+  produitId: string,
+  prixVente: number,
+  prixAchat: number,
+  quantiteAjoutee: number
+): Promise<void> {
+  return invoke("restock_product", { produitId, prixVente, prixAchat, quantiteAjoutee });
+}
 
 export function getProducts(): Promise<Product[]> {
   return invoke("get_products");
