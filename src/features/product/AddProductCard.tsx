@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { addProduct, getProductByBarcode , restockProduct ,Product} from "../../api/products";
 import { scan, cancel, Format, requestPermissions } from "@tauri-apps/plugin-barcode-scanner";
-
+import { useLanguage } from "../../i18n/LanguageContext";
 
 interface AddProductCardProps {
   onProductAdded: () => void;
 }
 
 export function AddProductCard({ onProductAdded }: AddProductCardProps) {
+  const { t } = useLanguage();
   const [nom, setNom] = useState("");
   const [codeBarre, setCodeBarre] = useState("");
   const [prixVente, setPrixVente] = useState("");
@@ -20,7 +21,7 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
   const [restockPrixAchat, setRestockPrixAchat] = useState("");
   const [restockQte, setRestockQte] = useState("");
 
-  
+
 
   async function startScan() {
   setScanning(true);
@@ -41,7 +42,7 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
     setExistingProduct(existing);
 
     if (existing) {
-      setMessage(`Ce produit existe déjà : ${existing.nom}`);
+      setMessage(`${t("productExists")} : ${existing.nom}`);
       setRestockPrixVente(existing.prix_vente.toString());
       setRestockPrixAchat(existing.prix_achat.toString());
     } else {
@@ -87,7 +88,7 @@ async function handleRestock(e: React.FormEvent) {
       cancel();
     };
   }, []);
- 
+
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -123,7 +124,7 @@ async function handleRestock(e: React.FormEvent) {
             style={{ fontFamily: "var(--gesso-font-body)" }}
             className="absolute top-6 left-0 right-0 text-center text-sm font-medium text-white drop-shadow-lg "
           >
-            Visez le code-barre du produit
+            {t("scanPrompt")}
           </p>
         )}
         {!scanning && !codeBarre && message &&  (
@@ -133,7 +134,7 @@ async function handleRestock(e: React.FormEvent) {
             style={{ background: "var(--gesso-primary)", borderRadius: "var(--gesso-radius-md)" }}
             className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 text-sm font-medium text-white "
           >
-            🔄 Réessayer le scan
+            🔄 {t("retryScan")}
           </button>
         )}
       </div>
@@ -152,7 +153,7 @@ async function handleRestock(e: React.FormEvent) {
           style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 900, color: "var(--gesso-fg)" }}
           className="mb-4 text-xl"
         >
-          Ajouter un produit
+          {t("addProduct")}
         </h2>
 
         {codeBarre && !message && (
@@ -160,7 +161,7 @@ async function handleRestock(e: React.FormEvent) {
             style={{ background: "rgba(20,147,67,0.1)", color: "var(--gesso-success)", fontFamily: "var(--gesso-font-body)" }}
             className="mb-4 rounded-lg px-3 py-2 text-sm font-medium"
           >
-            Code scanné: {codeBarre}
+            {t("scannedCode")}: {codeBarre}
           </p>
         )}
 
@@ -183,12 +184,12 @@ async function handleRestock(e: React.FormEvent) {
         {existingProduct.nom}
       </p>
       <p style={{ color: "var(--gesso-fg-muted)" }} className="text-sm">
-        Stock actuel : {existingProduct.quantite}
+        {t("currentStock")} : {existingProduct.quantite}
       </p>
     </div>
 
     <input
-      placeholder="Prix vente"
+      placeholder={t("sellPrice")}
       type="number"
       value={restockPrixVente}
       onChange={(e) => setRestockPrixVente(e.target.value)}
@@ -196,7 +197,7 @@ async function handleRestock(e: React.FormEvent) {
       className="px-4 py-4 text-base outline-none"
     />
     <input
-      placeholder="Prix achat"
+      placeholder={t("buyPrice")}
       type="number"
       value={restockPrixAchat}
       onChange={(e) => setRestockPrixAchat(e.target.value)}
@@ -204,7 +205,7 @@ async function handleRestock(e: React.FormEvent) {
       className="px-4 py-4 text-base outline-none"
     />
     <input
-      placeholder="Quantité à ajouter"
+      placeholder={t("quantityToAdd")}
       type="number"
       value={restockQte}
       onChange={(e) => setRestockQte(e.target.value)}
@@ -218,13 +219,13 @@ async function handleRestock(e: React.FormEvent) {
       style={{ background: "var(--gesso-secondary)", borderRadius: "var(--gesso-radius-md)" }}
       className="mt-2 py-4 text-base font-bold text-white active:scale-95 transition"
     >
-      Mettre à jour
+      {t("update")}
     </button>
   </form>
 ) : (
    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <input
-            placeholder="Nom"
+            placeholder={t("name")}
             value={nom}
             onChange={(e) => setNom(e.target.value)}
             required
@@ -232,14 +233,14 @@ async function handleRestock(e: React.FormEvent) {
             className="px-4 py-4 text-base outline-none"
           />
           <input
-            placeholder="Code-barre"
+            placeholder={t("barcode")}
             value={codeBarre}
             onChange={(e) => setCodeBarre(e.target.value)}
             style={inputStyle}
             className="px-4 py-4 text-base outline-none"
           />
           <input
-            placeholder="Prix vente"
+            placeholder={t("sellPrice")}
             type="number"
             value={prixVente}
             onChange={(e) => setPrixVente(e.target.value)}
@@ -248,7 +249,7 @@ async function handleRestock(e: React.FormEvent) {
             className="px-4 py-4 text-base outline-none"
           />
           <input
-            placeholder="Prix achat"
+            placeholder={t("buyPrice")}
             type="number"
             value={prixAchat}
             onChange={(e) => setPrixAchat(e.target.value)}
@@ -257,7 +258,7 @@ async function handleRestock(e: React.FormEvent) {
             className="px-4 py-4 text-base outline-none"
           />
           <input
-            placeholder="Quantité"
+            placeholder={t("quantity")}
             type="number"
             value={quantite}
             onChange={(e) => setQuantite(e.target.value)}
@@ -274,12 +275,12 @@ async function handleRestock(e: React.FormEvent) {
             }}
             className="mt-2 py-4 text-base font-bold text-white active:scale-95 transition"
           >
-            Ajouter
+            {t("add")}
           </button>
         </form>
 )}
 
-       
+
       </div>
     </div>
   );

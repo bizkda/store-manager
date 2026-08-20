@@ -3,7 +3,7 @@ import { getProductByBarcode, Product } from "../../api/products";
 import { checkout, NewSale } from "../../api/sales";
 import { scan, cancel, Format, requestPermissions } from "@tauri-apps/plugin-barcode-scanner";
 import { useProductSearch } from "./useProductSearch";
-
+import { useLanguage } from "../../i18n/LanguageContext";
 
 interface CartItem {
   product: Product;
@@ -20,7 +20,7 @@ interface SaleCardProps {
 
 
 export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct }: SaleCardProps) {
-
+  const { t } = useLanguage();
   const [message, setMessage] = useState("");
   const [scanning, setScanning] = useState(false);
   const { nom, setNom, prixMin, setPrixMin, prixMax, setPrixMax, results, searched } = useProductSearch();
@@ -31,7 +31,7 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
     try {
       const permission = await requestPermissions();
       if (permission !== "granted") {
-        setMessage("Permission caméra refusée");
+        setMessage(t("cameraPermissionDenied"));
         setScanning(false);
         return;
       }
@@ -43,7 +43,7 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
       const product = await getProductByBarcode(result.content);
       if (product) {
         addToCart(product);
-        setMessage(`${product.nom} ajouté au panier`);
+        setMessage(`${product.nom} ${t("addedToCart")}`);
         setScannedNotFound(false);
       } else {
         setMessage("");
@@ -109,11 +109,11 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
     };
     try {
       const receipt = await checkout(sale);
-      setMessage(`Vente enregistrée: ${receipt.total} DA`);
+      setMessage(`${t("saleRecorded")}: ${receipt.total} DA`);
       setCart([]);
       onSaleComplete();
     } catch (e) {
-      setMessage(`Erreur: ${e}`);
+      setMessage(`${t("error")}: ${e}`);
     }
   }
 
@@ -133,7 +133,7 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
             style={{ fontFamily: "var(--gesso-font-body)" }}
             className="absolute top-6 left-0 right-0 text-center text-sm font-medium text-white drop-shadow-lg"
           >
-            Visez le code-barre du produit
+            {t("scanPrompt")}
           </p>
         )}
         {!scanning && (
@@ -143,12 +143,12 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
             style={{ background: "var(--gesso-primary)", borderRadius: "var(--gesso-radius-md)" }}
             className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 text-sm font-medium text-white"
           >
-            🔄 Réessayer le scan
+            🔄 {t("retryScan")}
           </button>
         )}
       </div>
 
-      
+
 
       {/* Fiche vente */}
       <div
@@ -167,7 +167,7 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
               style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 900, color: "var(--gesso-fg)" }}
               className="text-xl"
             >
-              Faire une vente
+              {t("makeSale")}
             </h2>
           </div>
 
@@ -189,20 +189,20 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
               style={{ fontFamily: "var(--gesso-font-body)", color: "var(--gesso-fg-muted)" }}
               className="mt-2 text-sm"
             >
-              Produit inconnu —{" "}
+              {t("unknownProduct")} —{" "}
               <button
                 type="button"
                 onClick={onNavigateToAddProduct}
                 style={{ color: "var(--gesso-primary)", fontFamily: "var(--gesso-font-body)" }}
                 className="font-bold underline"
               >
-                ajoute-le
+                {t("addIt")}
               </button>
             </p>
           )}
         </div>
         {/* Barre de recherche */}
-        
+
         <div
           style={{ background: "var(--gesso-canvas)" }}
           className="flex flex-col gap-2 px-6 py-3"
@@ -212,12 +212,12 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
             style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 700, color: "var(--gesso-fg-muted)" }}
             className="mb-2 text-xs uppercase tracking-wide"
           >
-            Recherche
+            {t("search")}
           </h3>
 
           <div className="">
             <input
-              placeholder="Rechercher un nom..."
+              placeholder={t("searchPlaceholder")}
               value={nom}
               onChange={(e) => setNom(e.target.value)}
               style={searchInputStyle}
@@ -228,7 +228,7 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
           {/* Prix */}
           <div className="flex gap-2 w-full">
             <input
-              placeholder="Prix min"
+              placeholder={t("priceMin")}
               type="number"
               value={prixMin}
               onChange={(e) => setPrixMin(e.target.value)}
@@ -237,7 +237,7 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
             />
 
             <input
-              placeholder="Prix max"
+              placeholder={t("priceMax")}
               type="number"
               value={prixMax}
               onChange={(e) => setPrixMax(e.target.value)}
@@ -249,24 +249,24 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
 
         {/* Contenu scrollable */}
         <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
-          
+
             <>
               <h3
                 style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 700, color: "var(--gesso-fg-muted)" }}
                 className="mb-2 text-xs uppercase tracking-wide"
               >
-                Produits
+                {t("products")}
               </h3>
               {searched && results.length === 0 && (
                 <p style={{ color: "var(--gesso-fg-muted)" }} className="text-sm">
-                  Ce produit n'existe pas —{" "}
+                  {t("productNotFound")} —{" "}
                   <button
                     type="button"
                     onClick={onNavigateToAddProduct}
                     style={{ color: "var(--gesso-primary)", fontFamily: "var(--gesso-font-body)" }}
                     className="font-bold underline"
                   >
-                    ajoute-le
+                    {t("addIt")}
                   </button>
                 </p>
               )}
@@ -287,26 +287,26 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
                       style={{ background: "var(--gesso-secondary)", borderRadius: "var(--gesso-radius-md)" }}
                       className="px-3 py-1.5 text-sm font-medium text-white transition active:scale-95"
                     >
-                      Ajouter
+                      {t("add")}
                     </button>
                   </li>
                 ))}
               </ul>
               )}
 
-              
+
           </>
 
           <h3
   style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 700, color: "var(--gesso-fg-muted)" }}
   className="mb-2 mt-6 text-xs uppercase tracking-wide"
 >
-  Panier
+  {t("cart")}
 </h3>
 
 {cart.length === 0 ? (
   <p style={{ fontFamily: "var(--gesso-font-body)", color: "var(--gesso-fg-muted)" }} className="text-sm">
-    Aucun produit dans le panier
+    {t("emptyCart")}
   </p>
 ) : (
   <ul className="flex flex-col gap-2">
@@ -378,7 +378,7 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
         >
           <div className="mb-3 flex items-center justify-between">
             <span style={{ fontFamily: "var(--gesso-font-body)", color: "var(--gesso-fg-muted)" }} className="text-base">
-              Total
+              {t("total")}
             </span>
             <span
               style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 900, color: "var(--gesso-fg)" }}
@@ -395,7 +395,7 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
               style={{ background: "var(--gesso-primary)", borderRadius: "var(--gesso-radius-md)" }}
               className="w-full py-4 text-base font-bold text-white transition active:scale-95"
             >
-              Checkout
+              {t("checkout")}
             </button>
           )}
         </div>

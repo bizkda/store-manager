@@ -3,6 +3,7 @@ import { getProducts, Product } from "./api/products";
 import { AddProductCard } from "./features/product/AddProductCard";
 import { SaleCard } from "./features/sale/SaleCard";
 import "./App.css";
+import { useLanguage } from "./i18n/LanguageContext";
 
 type View = "menu" | "add-product" | "sale";
 
@@ -16,12 +17,11 @@ function App() {
   const [view, setView] = useState<View>("menu");
   const [previousView, setPreviousView] = useState<View>("menu");
   const [cart, setCart] = useState<CartItem[]>([]);
-
+  const { t, lang, toggleLang } = useLanguage();
 
   function refreshProducts() {
     getProducts().then(setProducts).catch(console.error);
   }
-
   useEffect(refreshProducts, []);
 
   useEffect(() => {
@@ -55,7 +55,7 @@ function App() {
           style={{ fontFamily: "var(--gesso-font-body)", color: "var(--gesso-primary)" }}
           className="mb-4 mt-6 flex items-center gap-1 text-base font-bold"
         >
-          ← Retour
+          ← {t("back")}
         </button>
         <AddProductCard onProductAdded={handleProductAdded} />
       </main>
@@ -70,7 +70,7 @@ function App() {
           style={{ fontFamily: "var(--gesso-font-body)", color: "var(--gesso-primary)" }}
           className="mb-4 mt-6 flex items-center gap-1 text-base font-bold"
         >
-          ← Retour
+          ← {t("back")}
         </button>
         <SaleCard
           products={products}
@@ -88,12 +88,35 @@ function App() {
 
   return (
     <main style={{ background: "var(--gesso-canvas)" }} className="min-h-screen px-6 pt-10 pb-6">
+
       <div className="mb-8">
-        <p style={{ fontFamily: "var(--gesso-font-body)" }} className="text-sm">
-          Bonjour !
-        </p>
+       <div className="flex items-center justify-between w-full">
+          <p
+            style={{
+              fontFamily: "var(--gesso-font-body)",
+              color: "var(--gesso-fg-muted)",
+            }}
+            className="text-sm"
+          >
+            {t("bonjour")}
+          </p>
+
+          <button
+            onClick={toggleLang}
+            style={{
+              background: "var(--gesso-surface)",
+              color: "var(--gesso-primary)",
+              borderRadius: "var(--gesso-radius-md)",
+              fontFamily: "var(--gesso-font-body)",
+            }}
+            className="px-3 py-1.5 text-xs font-bold transition active:scale-95"
+          >
+            {lang === "fr" ? "AR" : "FR"}
+          </button>
+        </div>
+                
         <h1 style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 900 }} className="text-3xl">
-          Store Manager
+          {t("storeManager")}
         </h1>
       </div>
 
@@ -106,12 +129,11 @@ function App() {
           <span className="text-3xl">📦</span>
           <div>
             <div style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 900 }} className="text-white text-lg leading-tight">
-              Ajouter un produit
+              {t("addProduct")}
             </div>
-            <div className="text-white/80 text-xs mt-1">Nouveau dans le stock</div>
+            <div className="text-white/80 text-xs mt-1">{t("addProductSubtitle")}</div>
           </div>
         </button>
-
         <button
           onClick={() => navigateTo("sale")}
           style={{ background: "var(--gesso-secondary)", borderRadius: "var(--gesso-radius-md)" }}
@@ -120,20 +142,19 @@ function App() {
           <span className="text-3xl">🛒</span>
           <div>
             <div style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 900 }} className="text-white text-lg leading-tight">
-              Faire une vente
+              {t("makeSale")}
             </div>
-            <div className="text-white/80 text-xs mt-1">Encaisser un client</div>
+            <div className="text-white/80 text-xs mt-1">{t("makeSaleSubtitle")}</div>
           </div>
         </button>
       </div>
 
       <p style={{ fontFamily: "var(--gesso-font-body)" }} className="mt-8 mb-3 text-xs font-bold uppercase tracking-wide">
-        Aujourd'hui
+        {t("today")}
       </p>
-
       <div style={{ background: "var(--gesso-surface)", borderRadius: "var(--gesso-radius-md)" }} className="p-4">
         <div className="flex items-center justify-between py-2">
-          <span className="text-sm">Produits en stock</span>
+          <span className="text-sm">{t("stockedProducts")}</span>
           <span style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 900 }} className="text-lg">
             {products.length}
           </span>
