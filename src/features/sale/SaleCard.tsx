@@ -4,6 +4,7 @@ import { checkout, NewSale } from "../../api/sales";
 import { scan, cancel, Format, requestPermissions } from "@tauri-apps/plugin-barcode-scanner";
 import { useProductSearch } from "./useProductSearch";
 
+
 interface CartItem {
   product: Product;
   quantite: number;
@@ -11,14 +12,19 @@ interface CartItem {
 
 interface SaleCardProps {
   products: Product[];
+  cart: CartItem[];
+  setCart: React.Dispatch<React.SetStateAction<CartItem[]>>;
   onSaleComplete: () => void;
+  onNavigateToAddProduct: () => void;
 }
 
-export function SaleCard({ onSaleComplete }: SaleCardProps) {
-  const [cart, setCart] = useState<CartItem[]>([]);
+
+export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct }: SaleCardProps) {
+
   const [message, setMessage] = useState("");
   const [scanning, setScanning] = useState(false);
-  const { nom, setNom, prixMin, setPrixMin, prixMax, setPrixMax, results } = useProductSearch();
+  const { nom, setNom, prixMin, setPrixMin, prixMax, setPrixMax, results, searched } = useProductSearch();
+  const [scannedNotFound, setScannedNotFound] = useState(false);
 
   async function startScan() {
     setScanning(true);
@@ -38,8 +44,10 @@ export function SaleCard({ onSaleComplete }: SaleCardProps) {
       if (product) {
         addToCart(product);
         setMessage(`${product.nom} ajouté au panier`);
+        setScannedNotFound(false);
       } else {
-        setMessage("Aucun produit trouvé pour ce code-barre");
+        setMessage("");
+        setScannedNotFound(true);
       }
     } catch (e: any) {
       console.error("Scan échoué:", e?.message);
@@ -162,6 +170,7 @@ export function SaleCard({ onSaleComplete }: SaleCardProps) {
               Faire une vente
             </h2>
           </div>
+
           {message && (
             <p
               style={{
@@ -172,6 +181,23 @@ export function SaleCard({ onSaleComplete }: SaleCardProps) {
               className="mt-2 rounded-lg px-3 py-2 text-sm font-medium"
             >
               {message}
+            </p>
+          )}
+
+          {scannedNotFound && (
+            <p
+              style={{ fontFamily: "var(--gesso-font-body)", color: "var(--gesso-fg-muted)" }}
+              className="mt-2 text-sm"
+            >
+              Produit inconnu —{" "}
+              <button
+                type="button"
+                onClick={onNavigateToAddProduct}
+                style={{ color: "var(--gesso-primary)", fontFamily: "var(--gesso-font-body)" }}
+                className="font-bold underline"
+              >
+                ajoute-le
+              </button>
             </p>
           )}
         </div>
@@ -223,7 +249,7 @@ export function SaleCard({ onSaleComplete }: SaleCardProps) {
 
         {/* Contenu scrollable */}
         <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
-          {(nom || prixMin || prixMax) && (
+          
             <>
               <h3
                 style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 700, color: "var(--gesso-fg-muted)" }}
@@ -231,7 +257,20 @@ export function SaleCard({ onSaleComplete }: SaleCardProps) {
               >
                 Produits
               </h3>
-
+              {searched && results.length === 0 && (
+                <p style={{ color: "var(--gesso-fg-muted)" }} className="text-sm">
+                  Ce produit n'existe pas —{" "}
+                  <button
+                    type="button"
+                    onClick={onNavigateToAddProduct}
+                    style={{ color: "var(--gesso-primary)", fontFamily: "var(--gesso-font-body)" }}
+                    className="font-bold underline"
+                  >
+                    ajoute-le
+                  </button>
+                </p>
+              )}
+            {results.length > 0 && (
               <ul className="flex flex-col gap-2">
                 {results.map((p) => (
                   <li
@@ -253,8 +292,10 @@ export function SaleCard({ onSaleComplete }: SaleCardProps) {
                   </li>
                 ))}
               </ul>
-            </>
-          )}
+              )}
+
+              
+          </>
 
           <h3
   style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 700, color: "var(--gesso-fg-muted)" }}

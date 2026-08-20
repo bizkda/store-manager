@@ -6,12 +6,14 @@ export function useProductSearch() {
   const [prixMin, setPrixMin] = useState("");
   const [prixMax, setPrixMax] = useState("");
   const [results, setResults] = useState<Product[]>([]);
+  const [searched, setSearched] = useState(false);
 
   useEffect(() => {
     const hasQuery = nom.trim() !== "" || prixMin !== "" || prixMax !== "";
 
     if (!hasQuery) {
       setResults([]);
+      setSearched(false);
       return;
     }
 
@@ -22,10 +24,11 @@ export function useProductSearch() {
         prixMax ? parseFloat(prixMax) : undefined
       );
       setResults(found);
+      setSearched(true);
     }, 300);
 
     return () => clearTimeout(timeout);
   }, [nom, prixMin, prixMax]);
 
-  return { nom, setNom, prixMin, setPrixMin, prixMax, setPrixMax, results };
+  return { nom, setNom, prixMin, setPrixMin, prixMax, setPrixMax, results, searched };
 }

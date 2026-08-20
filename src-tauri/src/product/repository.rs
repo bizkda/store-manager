@@ -6,7 +6,6 @@ pub trait ProductRepository {
     fn get_all(&self, conn: &Connection) -> Result<Vec<Product>, String>;
     fn get_by_barcode(&self, conn: &Connection, code_barre: &str) -> Result<Option<Product>, String>;
     fn insert(&self, conn: &Connection, product: &NewProduct, id: &str) -> Result<(), String>;
-    fn decrement_stock(&self, conn: &Connection, produit_id: &str, quantite: f64) -> Result<(), String>;
     fn search(&self,conn: &Connection,nom: Option<&str>,prix_min: Option<f64>,prix_max: Option<f64>,) -> Result<Vec<Product>, String>;
     fn restock(&self,conn: &Connection,produit_id: &str,prix_vente: f64,prix_achat: f64,quantite_ajoutee: f64,) -> Result<(), String>; 
 }
@@ -72,16 +71,6 @@ impl ProductRepository for SqliteProductRepository {
         .map_err(|e| e.to_string())?;
         Ok(())
     }
-
-    fn decrement_stock(&self, conn: &Connection, produit_id: &str, quantite: f64) -> Result<(), String> {
-        conn.execute(
-            "UPDATE produit SET quantite = quantite - ?1 WHERE id = ?2",
-            (quantite, produit_id),
-        )
-        .map_err(|e| e.to_string())?;
-        Ok(())
-    }
-
 
     fn search(
     &self,

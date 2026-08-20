@@ -1,16 +1,8 @@
-use crate::sale::model::{LigneVenteInput, Sale};
+use crate::sale::model::{LigneVenteInput};
 use rusqlite::{params, Connection};
 
 pub trait SaleRepository {
-    fn create_sale_with_items(
-        &self,
-        conn: &mut Connection,
-        sale_id: &str,
-        date_vente: &str,
-        total: f64,
-        items: &[LigneVenteInput],
-    ) -> Result<(), String>;
-
+    fn create_sale_with_items(&self,conn: &mut Connection,sale_id: &str,date_vente: &str,total: f64,items: &[LigneVenteInput],) -> Result<(), String>;
     fn get_stock(&self, conn: &Connection, produit_id: &str) -> Result<f64, String>;
 }
 

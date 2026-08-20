@@ -1,11 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Sale {
-    pub id: String,
-    pub date_vente: String,
-    pub total: f64,
-}
+
 
 // Une ligne du panier, avant d'être persistée
 #[derive(Debug, Deserialize)]
