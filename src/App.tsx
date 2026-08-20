@@ -4,6 +4,8 @@ import { AddProductCard } from "./features/product/AddProductCard";
 import { SaleCard } from "./features/sale/SaleCard";
 import "./App.css";
 import { useLanguage } from "./i18n/LanguageContext";
+import { useTheme } from "./theme/useTheme";
+
 
 type View = "menu" | "add-product" | "sale";
 
@@ -18,6 +20,7 @@ function App() {
   const [previousView, setPreviousView] = useState<View>("menu");
   const [cart, setCart] = useState<CartItem[]>([]);
   const { t, lang, toggleLang } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
 
   function refreshProducts() {
     getProducts().then(setProducts).catch(console.error);
@@ -100,19 +103,32 @@ function App() {
           >
             {t("bonjour")}
           </p>
-
-          <button
-            onClick={toggleLang}
-            style={{
-              background: "var(--gesso-surface)",
-              color: "var(--gesso-primary)",
-              borderRadius: "var(--gesso-radius-md)",
-              fontFamily: "var(--gesso-font-body)",
-            }}
-            className="px-3 py-1.5 text-xs font-bold transition active:scale-95"
-          >
-            {lang === "fr" ? "AR" : "FR"}
-          </button>
+          <div>
+            <button
+              onClick={toggleLang}
+              style={{
+                background: "var(--gesso-surface)",
+                color: "var(--gesso-primary)",
+                borderRadius: "var(--gesso-radius-md)",
+                fontFamily: "var(--gesso-font-body)",
+              }}
+              className="px-3 py-1.5 text-xs font-bold transition active:scale-95"
+            >
+              {lang === "fr" ? "AR" : "FR"}
+            </button>
+            <button onClick={toggleTheme}
+              style={{
+                background: "var(--gesso-surface)",
+                color: "var(--gesso-primary)",
+                borderRadius: "var(--gesso-radius-md)",
+                fontFamily: "var(--gesso-font-body)",
+              }}
+              className="px-3 py-1.5 text-xs font-bold transition active:scale-95"
+                >
+              {theme === "light" ? "🌙" : "☀️"}
+            </button>
+          </div>
+          
         </div>
                 
         <h1 style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 900 }} className="text-3xl">

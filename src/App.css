@@ -17,7 +17,16 @@
   --gesso-neutral-300: #b5b1b1;
   --gesso-success: #149343;
   --gesso-shadow-lg: 0 1px 2px rgba(0,0,0,0.04);
-
+  [data-theme="dark"] {
+  --gesso-canvas: #121214;
+  --gesso-surface: #1e1e21;
+  --gesso-surface-elevated: #2a2a2e;
+  --gesso-fg: #f0f0f2;
+  --gesso-fg-muted: #9a9a9f;
+  --gesso-primary: #7c65ff;
+  --gesso-secondary: #ff7a5c;
+  --gesso-divider: #303034;
+  }
 }
 html, body, #root {
   font-family: var(--gesso-font-body);
