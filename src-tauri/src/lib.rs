@@ -1,9 +1,10 @@
 use tauri::Manager;
+
 mod db;
 mod product;
 mod sale;
 mod identity;
-
+mod sync;
 
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -15,10 +16,20 @@ pub fn run() {
     tauri::Builder::default()
         .setup(|app| {
             let db_state = db::init_db(app);
+
+            // On réutilise la même connexion SQLite
+            // pour le serveur de synchronisation.
+            let conn_arc = db_state.conn.clone();
+
+            sync::server::start_sync_server(conn_arc);
+
+            // La même DbState est ensuite disponible
+            // dans les commandes Tauri.
             app.manage(db_state);
 
             #[cfg(mobile)]
-            app.handle().plugin(tauri_plugin_barcode_scanner::init())?;
+            app.handle()
+                .plugin(tauri_plugin_barcode_scanner::init())?;
 
             Ok(())
         })
@@ -31,6 +42,7 @@ pub fn run() {
             product::commands::search_products,
             product::commands::restock_product,
             sale::commands::checkout,
+            sync::commands::sync_with_peer,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

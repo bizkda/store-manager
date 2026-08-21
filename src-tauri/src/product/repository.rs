@@ -8,6 +8,7 @@ pub trait ProductRepository {
     fn insert(&self, conn: &Connection, product: &NewProduct, id: &str) -> Result<(), String>;
     fn search(&self,conn: &Connection,nom: Option<&str>,prix_min: Option<f64>,prix_max: Option<f64>,) -> Result<Vec<Product>, String>;
     fn restock(&self,conn: &Connection,produit_id: &str,prix_vente: f64,prix_achat: f64,quantite_ajoutee: f64,) -> Result<(), String>; 
+    fn record_movement(&self, conn: &Connection, produit_id: &str, delta: f64, origine_id: &str) -> Result<(), String>;
 }
 
 pub struct SqliteProductRepository;
@@ -124,12 +125,34 @@ impl ProductRepository for SqliteProductRepository {
     prix_vente: f64,
     prix_achat: f64,
     quantite_ajoutee: f64,
-) -> Result<(), String> {
+    ) -> Result<(), String> {
     conn.execute(
         "UPDATE produit SET prix_vente = ?1, prix_achat = ?2, quantite = quantite + ?3 WHERE id = ?4",
         (prix_vente, prix_achat, quantite_ajoutee, produit_id),
     )
     .map_err(|e| e.to_string())?;
+    Ok(())
+    }
+    fn record_movement(
+    &self,
+    conn: &Connection,
+    produit_id: &str,
+    delta: f64,
+    origine_id: &str,
+) -> Result<(), String> {
+    let id = uuid::Uuid::new_v4().to_string();
+    let now = chrono::Utc::now().to_rfc3339();
+
+    conn.execute(
+        "INSERT INTO mouvement_stock (id, produit_id, delta, origine_id, created_at) VALUES (?1, ?2, ?3, ?4, ?5)",
+        (&id, produit_id, delta, origine_id, &now),
+    ).map_err(|e| e.to_string())?;
+
+    conn.execute(
+        "UPDATE produit SET quantite = quantite + ?1 WHERE id = ?2",
+        (delta, produit_id),
+    ).map_err(|e| e.to_string())?;
+
     Ok(())
 }
     

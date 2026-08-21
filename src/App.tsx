@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getProducts, Product } from "./api/products";
+import { getProducts, Product , syncWithPeer} from "./api/products";
 import { AddProductCard } from "./features/product/AddProductCard";
 import { SaleCard } from "./features/sale/SaleCard";
 import "./App.css";
@@ -21,6 +21,18 @@ function App() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const { t, lang, toggleLang } = useLanguage();
   const { theme, toggleTheme } = useTheme();
+
+  const [peerIp, setPeerIp] = useState("");
+  const [syncMessage, setSyncMessage] = useState("");
+
+  async function handleSync() {
+    try {
+      const result = await syncWithPeer(peerIp);
+      setSyncMessage(result);
+    } catch (e) {
+      setSyncMessage(`Erreur sync: ${e}`);
+    }
+  }
 
   function refreshProducts() {
     getProducts().then(setProducts).catch(console.error);
@@ -128,7 +140,6 @@ function App() {
               {theme === "light" ? "🌙" : "☀️"}
             </button>
           </div>
-          
         </div>
                 
         <h1 style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 900 }} className="text-3xl">
@@ -176,6 +187,10 @@ function App() {
           </span>
         </div>
       </div>
+      <input placeholder="IP de l'autre appareil" value={peerIp} onChange={(e) => setPeerIp(e.target.value)} />
+          <button className="bg-amber-600" onClick={handleSync}>Synchroniser</button>
+          {syncMessage && <p>{syncMessage}</p>}
+    
     </main>
   );
 }

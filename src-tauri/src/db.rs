@@ -1,10 +1,10 @@
 use rusqlite::Connection;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 use tauri::Manager;
 
 
 pub struct DbState {
-    pub conn: Mutex<Connection>,
+    pub conn: Arc<Mutex<Connection>>,
     pub device_id: String,
 }
 
@@ -71,7 +71,7 @@ pub fn init_db(app: &tauri::App) -> DbState {
     let device_id = crate::identity::get_or_create_device_id(&conn);
 
     DbState {
-        conn: Mutex::new(conn),
-        device_id,
+    conn: Arc::new(Mutex::new(conn)),
+    device_id,
     }
 }
