@@ -12,12 +12,16 @@
   --gesso-on-accent: #ffffff;
   --gesso-secondary: #e85a3c;
   --gesso-font-display: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --gesso-font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;--gesso-radius-md: 16px;
+  --gesso-font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --gesso-radius-md: 16px;
   --gesso-radius-lg: 24px;
   --gesso-neutral-300: #b5b1b1;
   --gesso-success: #149343;
   --gesso-shadow-lg: 0 1px 2px rgba(0,0,0,0.04);
-  [data-theme="dark"] {
+  --gesso-divider: #d8d8d8;
+}
+
+[data-theme="dark"] {
   --gesso-canvas: #121214;
   --gesso-surface: #1e1e21;
   --gesso-surface-elevated: #2a2a2e;
@@ -26,8 +30,8 @@
   --gesso-primary: #7c65ff;
   --gesso-secondary: #ff7a5c;
   --gesso-divider: #303034;
-  }
 }
+
 html, body, #root {
   font-family: var(--gesso-font-body);
   color: var(--gesso-fg);

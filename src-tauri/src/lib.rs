@@ -2,6 +2,7 @@ use tauri::Manager;
 mod db;
 mod product;
 mod sale;
+mod identity;
 
 
 #[tauri::command]
