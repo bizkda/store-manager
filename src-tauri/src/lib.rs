@@ -43,6 +43,11 @@ pub fn run() {
             product::commands::restock_product,
             sale::commands::checkout,
             sync::commands::sync_with_peer,
+            sync::commands::get_peers,
+            sync::commands::add_peer,
+            sync::commands::remove_peer,
+            sync::commands::get_my_ip,
+            sync::commands::scan_network,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

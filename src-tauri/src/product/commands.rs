@@ -19,8 +19,15 @@ pub fn get_product_by_barcode(state: State<DbState>, code_barre: String) -> Resu
 #[tauri::command]
 pub fn add_product(state: State<DbState>, product: NewProduct) -> Result<String, String> {
     let conn = state.conn.lock().map_err(|e| e.to_string())?;
-    let id = Uuid::new_v4().to_string();
+    let id = uuid::Uuid::new_v4().to_string();
     SqliteProductRepository.insert(&conn, &product, &id)?;
+    drop(conn);
+
+    let conn_clone = state.conn.clone();
+    tauri::async_runtime::spawn(async move {
+        crate::sync::client::sync_all_known_peers(conn_clone).await;
+    });
+
     Ok(id)
 }
 #[tauri::command]
@@ -34,6 +41,7 @@ pub fn search_products(
     SqliteProductRepository.search(&conn, nom.as_deref(), prix_min, prix_max)
 }
 
+
 #[tauri::command]
 pub fn restock_product(
     state: State<DbState>,
@@ -43,5 +51,13 @@ pub fn restock_product(
     quantite_ajoutee: f64,
 ) -> Result<(), String> {
     let conn = state.conn.lock().map_err(|e| e.to_string())?;
-    SqliteProductRepository.restock(&conn, &produit_id, prix_vente, prix_achat, quantite_ajoutee)
+    SqliteProductRepository.restock(&conn, &produit_id, prix_vente, prix_achat, quantite_ajoutee)?;
+    drop(conn);
+
+    let conn_clone = state.conn.clone();
+    tauri::async_runtime::spawn(async move {
+        crate::sync::client::sync_all_known_peers(conn_clone).await;
+    });
+
+    Ok(())
 }

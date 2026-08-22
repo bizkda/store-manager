@@ -152,3 +152,17 @@ pub async fn sync_with_peer(
         applied_count, products_applied
     ))
 }
+pub async fn sync_all_known_peers(conn: Arc<Mutex<Connection>>) {
+    let peers = {
+        let c = conn.lock().unwrap();
+        super::peers::get_known_peers(&c).unwrap_or_default()
+    };
+
+    for peer_ip in peers {
+        let conn_clone = conn.clone();
+        match sync_with_peer(conn_clone, peer_ip.clone()).await {
+            Ok(msg) => println!("Sync avec {} : {}", peer_ip, msg),
+            Err(e) => eprintln!("Sync avec {} échouée (ignorée) : {}", peer_ip, e),
+        }
+    }
+}

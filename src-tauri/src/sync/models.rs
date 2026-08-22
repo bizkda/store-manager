@@ -9,11 +9,6 @@ pub struct MovementDto {
     pub created_at: String,
 }
 
-#[derive(Debug, Deserialize)]
-pub struct SyncRequest {
-    pub since: String, // date ISO — "donne-moi ce qui a changé depuis cette date"
-}
-
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ProductDto {
     pub id: String,

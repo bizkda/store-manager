@@ -1,4 +1,4 @@
-use axum::{extract::State, routing::get,routing::post, Json, Router};
+use axum::{extract::State, routing::get, Json, Router};
 use rusqlite::Connection;
 use std::sync::{Arc, Mutex};
 

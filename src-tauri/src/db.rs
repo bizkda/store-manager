@@ -50,6 +50,10 @@ CREATE TABLE IF NOT EXISTS sync_state (
 CREATE TABLE IF NOT EXISTS device_identity (
     id TEXT PRIMARY KEY
 );
+CREATE TABLE IF NOT EXISTS known_peers (
+    ip    TEXT PRIMARY KEY,
+    label TEXT NOT NULL DEFAULT ''
+);
 
 CREATE INDEX IF NOT EXISTS idx_ligne_vente_vente ON ligne_vente(vente_id);
 CREATE INDEX IF NOT EXISTS idx_produit_code_barre ON produit(code_barre);

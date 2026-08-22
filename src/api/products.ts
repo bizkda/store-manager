@@ -50,7 +50,3 @@ export function getProductByBarcode(codeBarre: string): Promise<Product | null> 
 export function addProduct(product: NewProduct): Promise<string> {
   return invoke("add_product", { product });
 }
-
-export function syncWithPeer(peerIp: string): Promise<string> {
-  return invoke("sync_with_peer", { peerIp });
-}
