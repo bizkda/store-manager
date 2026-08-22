@@ -187,10 +187,47 @@ function App() {
           </span>
         </div>
       </div>
-      <input placeholder="IP de l'autre appareil" value={peerIp} onChange={(e) => setPeerIp(e.target.value)} />
-          <button className="bg-amber-600" onClick={handleSync}>Synchroniser</button>
-          {syncMessage && <p>{syncMessage}</p>}
-    
+      <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+  <div className="mb-4">
+    <h3 className="text-lg font-semibold text-slate-800">
+      Synchronisation
+    </h3>
+    <p className="mt-1 text-sm text-slate-500">
+      Connectez-vous à un autre appareil pour synchroniser les données.
+    </p>
+  </div>
+
+  <div className="flex flex-col gap-3 sm:flex-row">
+    <div className="relative flex-1">
+      <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+        🌐
+      </span>
+
+      <input
+        type="text"
+        placeholder="Adresse IP de l'autre appareil"
+        value={peerIp}
+        onChange={(e) => setPeerIp(e.target.value)}
+        className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/10"
+      />
+    </div>
+
+    <button
+      onClick={handleSync}
+      disabled={!peerIp.trim()}
+      className="rounded-xl bg-amber-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      Synchroniser
+    </button>
+  </div>
+
+  {syncMessage && (
+    <div className="mt-4 flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+      <span>✓</span>
+      <p>{syncMessage}</p>
+    </div>
+  )}
+</div>
     </main>
   );
 }

@@ -57,20 +57,22 @@ impl ProductRepository for SqliteProductRepository {
     }
 
     fn insert(&self, conn: &Connection, product: &NewProduct, id: &str) -> Result<(), String> {
-        conn.execute(
-            "INSERT INTO produit (id, nom, code_barre, prix_vente, prix_achat, quantite, seuil_reappro) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-            (
-                id,
-                &product.nom,
-                &product.code_barre,
-                product.prix_vente,
-                product.prix_achat,
-                product.quantite,
-                product.seuil_reappro,
-            ),
-        )
-        .map_err(|e| e.to_string())?;
-        Ok(())
+    let now = chrono::Utc::now().to_rfc3339();
+    conn.execute(
+        "INSERT INTO produit (id, nom, code_barre, prix_vente, prix_achat, quantite, seuil_reappro, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+        (
+            id,
+            &product.nom,
+            &product.code_barre,
+            product.prix_vente,
+            product.prix_achat,
+            product.quantite,
+            product.seuil_reappro,
+            &now,
+        ),
+    )
+    .map_err(|e| e.to_string())?;
+    Ok(())
     }
 
     fn search(
@@ -126,12 +128,13 @@ impl ProductRepository for SqliteProductRepository {
     prix_achat: f64,
     quantite_ajoutee: f64,
     ) -> Result<(), String> {
-    conn.execute(
-        "UPDATE produit SET prix_vente = ?1, prix_achat = ?2, quantite = quantite + ?3 WHERE id = ?4",
-        (prix_vente, prix_achat, quantite_ajoutee, produit_id),
-    )
-    .map_err(|e| e.to_string())?;
-    Ok(())
+        let now = chrono::Utc::now().to_rfc3339();
+        conn.execute(
+            "UPDATE produit SET prix_vente = ?1, prix_achat = ?2, quantite = quantite + ?3, updated_at = ?4 WHERE id = ?5",
+            (prix_vente, prix_achat, quantite_ajoutee, &now, produit_id),
+        )
+        .map_err(|e| e.to_string())?;
+        Ok(())
     }
     fn record_movement(
     &self,
@@ -139,21 +142,21 @@ impl ProductRepository for SqliteProductRepository {
     produit_id: &str,
     delta: f64,
     origine_id: &str,
-) -> Result<(), String> {
-    let id = uuid::Uuid::new_v4().to_string();
-    let now = chrono::Utc::now().to_rfc3339();
+    ) -> Result<(), String> {
+        let id = uuid::Uuid::new_v4().to_string();
+        let now = chrono::Utc::now().to_rfc3339();
 
-    conn.execute(
-        "INSERT INTO mouvement_stock (id, produit_id, delta, origine_id, created_at) VALUES (?1, ?2, ?3, ?4, ?5)",
-        (&id, produit_id, delta, origine_id, &now),
-    ).map_err(|e| e.to_string())?;
+        conn.execute(
+            "INSERT INTO mouvement_stock (id, produit_id, delta, origine_id, created_at) VALUES (?1, ?2, ?3, ?4, ?5)",
+            (&id, produit_id, delta, origine_id, &now),
+        ).map_err(|e| e.to_string())?;
 
-    conn.execute(
-        "UPDATE produit SET quantite = quantite + ?1 WHERE id = ?2",
-        (delta, produit_id),
-    ).map_err(|e| e.to_string())?;
+        conn.execute(
+            "UPDATE produit SET quantite = quantite + ?1 WHERE id = ?2",
+            (delta, produit_id),
+        ).map_err(|e| e.to_string())?;
 
-    Ok(())
-}
+        Ok(())
+    }
     
 }

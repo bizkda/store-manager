@@ -67,6 +67,11 @@ pub fn init_db(app: &tauri::App) -> DbState {
     // Migrations pour les bases existantes
     let _ = conn.execute("ALTER TABLE produit ADD COLUMN updated_at TEXT NOT NULL DEFAULT ''", []);
     let _ = conn.execute("ALTER TABLE vente ADD COLUMN updated_at TEXT NOT NULL DEFAULT ''", []);
+    let now = chrono::Utc::now().to_rfc3339();
+    let _ = conn.execute(
+    "UPDATE produit SET updated_at = ?1 WHERE updated_at = ''",
+    [&now],
+);
 
     let device_id = crate::identity::get_or_create_device_id(&conn);
 
