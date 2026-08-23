@@ -113,13 +113,6 @@ function App() {
   );
 }
 
-const searchInputStyle = {
-    background: "var(--gesso-surface)",
-    borderRadius: "var(--gesso-radius-md)",
-    fontFamily: "var(--gesso-font-body)",
-    color: "var(--gesso-fg)",
-  };
-
   return (
     <main style={{ background: "var(--gesso-canvas)" }} className="min-h-screen px-6 pt-10 pb-6">
 

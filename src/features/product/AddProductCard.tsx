@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState} from "react";
 import { addProduct, getProductByBarcode , restockProduct ,Product} from "../../api/products";
-import { scan, cancel, Format, requestPermissions } from "@tauri-apps/plugin-barcode-scanner";
+import { scan, Format, requestPermissions } from "@tauri-apps/plugin-barcode-scanner";
 import { useLanguage } from "../../i18n/LanguageContext";
 
 interface AddProductCardProps {
@@ -14,47 +14,46 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
   const [prixVente, setPrixVente] = useState("");
   const [prixAchat, setPrixAchat] = useState("");
   const [quantite, setQuantite] = useState("");
-  const [scanning, setScanning] = useState(true);
+  const [scanning, setScanning] = useState(false); // false par défaut, plus jamais true au montage
   const [message, setMessage] = useState("");
   const [existingProduct, setExistingProduct] = useState<Product | null>(null);
   const [restockPrixVente, setRestockPrixVente] = useState("");
   const [restockPrixAchat, setRestockPrixAchat] = useState("");
   const [restockQte, setRestockQte] = useState("");
 
-
-
   async function startScan() {
-  setScanning(true);
-  try {
-    const permission = await requestPermissions();
-    if (permission !== "granted") {
-      console.error("Permission caméra refusée");
+    setScanning(true);
+    try {
+      const permission = await requestPermissions();
+      if (permission !== "granted") {
+        console.error("Permission caméra refusée");
+        setScanning(false);
+        return;
+      }
+      const result = await scan({
+        windowed: false,
+        formats: [Format.EAN13, Format.EAN8],
+      });
+      setCodeBarre(result.content);
+
+      const existing = await getProductByBarcode(result.content);
+      setExistingProduct(existing);
+
+      if (existing) {
+        setMessage(`${t("productExists")} : ${existing.nom}`);
+        setRestockPrixVente(existing.prix_vente.toString());
+        setRestockPrixAchat(existing.prix_achat.toString());
+      } else {
+        setMessage("");
+      }
+    } catch (e: any) {
+      console.error("Scan échoué:", e?.message);
+    } finally {
       setScanning(false);
-      return;
     }
-    const result = await scan({
-      windowed: true,
-      formats: [Format.EAN13, Format.EAN8],
-    });
-    setCodeBarre(result.content);
-
-    const existing = await getProductByBarcode(result.content);
-    setExistingProduct(existing);
-
-    if (existing) {
-      setMessage(`${t("productExists")} : ${existing.nom}`);
-      setRestockPrixVente(existing.prix_vente.toString());
-      setRestockPrixAchat(existing.prix_achat.toString());
-    } else {
-      setMessage("");
-    }
-  } catch (e: any) {
-    console.error("Scan échoué:", e?.message);
-  } finally {
-    setScanning(false);
   }
-}
 
+  // Pas de useEffect du tout — le scan ne démarre que sur clic explicite
 async function handleRestock(e: React.FormEvent) {
   e.preventDefault();
   if (!existingProduct) return;
@@ -70,25 +69,6 @@ async function handleRestock(e: React.FormEvent) {
   setRestockQte("");
   onProductAdded();
 }
-
- useEffect(() => {
-    let active = true;
-
-    async function scanLoop() {
-      while (active) {
-        await startScan();
-        await new Promise((resolve) => setTimeout(resolve, 9000));
-      }
-    }
-
-    scanLoop();
-
-    return () => {
-      active = false;
-      cancel();
-    };
-  }, []);
-
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -118,23 +98,22 @@ async function handleRestock(e: React.FormEvent) {
   return (
     <div className="flex h-screen flex-col">
       {/* Moitié haute — transparente, la caméra native est visible derrière */}
-      <div className="relative h-1/5 min-h-0 overflow-hidden bg-transparent">
-        {scanning && (
+      <div className="relative h-1/8 min-h-0 overflow-hidden bg-transparent">
+        {scanning ? (
           <p
             style={{ fontFamily: "var(--gesso-font-body)" }}
-            className="absolute top-6 left-0 right-0 text-center text-sm font-medium text-white drop-shadow-lg "
+            className="absolute top-6 left-0 right-0 text-center text-sm font-medium text-white drop-shadow-lg"
           >
             {t("scanPrompt")}
           </p>
-        )}
-        {!scanning && !codeBarre && message &&  (
+        ) : (
           <button
             type="button"
             onClick={startScan}
             style={{ background: "var(--gesso-primary)", borderRadius: "var(--gesso-radius-md)" }}
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 text-sm font-medium text-white "
+            className="absolute bottom-4 left-1/2 -translate-x-1/2 px-5 py-3 text-sm font-bold text-white shadow-lg"
           >
-            🔄 {t("retryScan")}
+            📷 {t("scanBarcode")}
           </button>
         )}
       </div>
@@ -147,7 +126,7 @@ async function handleRestock(e: React.FormEvent) {
           borderTopRightRadius: "var(--gesso-radius-lg)",
           boxShadow: "var(--gesso-shadow-lg)",
         }}
-        className="flex h-4/5 min-h-0 flex-col overflow-y-auto p-6 "
+        className="flex h-7/8 min-h-0 flex-col overflow-y-auto p-6 "
       >
         <h2
           style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 900, color: "var(--gesso-fg)" }}

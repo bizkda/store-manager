@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { getProductByBarcode, Product } from "../../api/products";
 import { checkout, NewSale } from "../../api/sales";
-import { scan, cancel, Format, requestPermissions } from "@tauri-apps/plugin-barcode-scanner";
+import { scan, Format, requestPermissions } from "@tauri-apps/plugin-barcode-scanner";
 import { useProductSearch } from "./useProductSearch";
 import { useLanguage } from "../../i18n/LanguageContext";
 
@@ -36,7 +36,7 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
         return;
       }
       const result = await scan({
-        windowed: true,
+        windowed: false,
         formats: [Format.EAN13, Format.EAN8],
       });
 
@@ -56,23 +56,6 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
     }
   }
 
-  useEffect(() => {
-    let active = true;
-
-    async function scanLoop() {
-      while (active) {
-        await startScan();
-        await new Promise((resolve) => setTimeout(resolve, 200));
-      }
-    }
-
-    scanLoop();
-
-    return () => {
-      active = false;
-      cancel();
-    };
-  }, []);
 
   function addToCart(product: Product) {
     setCart((prev) => {
@@ -127,23 +110,22 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
   return (
     <div className="flex h-screen flex-col" >
       {/* Zone caméra */}
-      <div className="relative h-1/5 min-h-0 overflow-hidden">
-        {scanning && (
+      <div className="relative h-1/8 min-h-0 overflow-hidden">
+        {scanning ? (
           <p
             style={{ fontFamily: "var(--gesso-font-body)" }}
             className="absolute top-6 left-0 right-0 text-center text-sm font-medium text-white drop-shadow-lg"
           >
             {t("scanPrompt")}
           </p>
-        )}
-        {!scanning && (
+        ) : (
           <button
             type="button"
             onClick={startScan}
             style={{ background: "var(--gesso-primary)", borderRadius: "var(--gesso-radius-md)" }}
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 text-sm font-medium text-white"
+            className="absolute bottom-4 left-1/2 -translate-x-1/2 px-5 py-3 text-sm font-bold text-white shadow-lg"
           >
-            🔄 {t("retryScan")}
+            📷 {t("scanBarcode")}
           </button>
         )}
       </div>
@@ -158,7 +140,7 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
           borderTopRightRadius: "var(--gesso-radius-lg)",
           boxShadow: "var(--gesso-shadow-lg)",
         }}
-        className="flex h-4/5 min-h-0 flex-col"
+        className="flex h-7/8 min-h-0 flex-col"
       >
         {/* Header */}
         <div style={{ borderBottom: "1px solid var(--gesso-divider)" }} className="shrink-0 px-6 py-4">
@@ -193,7 +175,7 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
               <button
                 type="button"
                 onClick={onNavigateToAddProduct}
-                style={{ color: "var(--gesso-primary)", fontFamily: "var(--gesso-font-body)" }}
+                style={{ color: "red", fontFamily: "var(--gesso-font-body)" }}
                 className="font-bold underline"
               >
                 {t("addIt")}
@@ -263,7 +245,7 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
                   <button
                     type="button"
                     onClick={onNavigateToAddProduct}
-                    style={{ color: "var(--gesso-primary)", fontFamily: "var(--gesso-font-body)" }}
+                    style={{ color: "red", fontFamily: "var(--gesso-font-body)" }}
                     className="font-bold underline"
                   >
                     {t("addIt")}

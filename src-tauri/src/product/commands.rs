@@ -2,7 +2,6 @@ use crate::db::DbState;
 use crate::product::model::{NewProduct, Product};
 use crate::product::repository::{ProductRepository, SqliteProductRepository};
 use tauri::State;
-use uuid::Uuid;
 
 #[tauri::command]
 pub fn get_products(state: State<DbState>) -> Result<Vec<Product>, String> {

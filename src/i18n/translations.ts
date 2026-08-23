@@ -59,6 +59,7 @@ export const translations = {
   saleRecorded: "Vente enregistrée",
   error: "Erreur",
   delete: "Supprimer",
+  scanBarcode: "Scanner un code-barre",
 
 },
   ar: {
@@ -121,6 +122,8 @@ export const translations = {
   saleRecorded: "تم تسجيل عملية البيع",
   error: "خطأ",
   delete: "حذف",
+  scanBarcode: "مسح الباركود",
+
 },
 } as const;
 
