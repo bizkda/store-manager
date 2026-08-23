@@ -50,3 +50,7 @@ export function getProductByBarcode(codeBarre: string): Promise<Product | null> 
 export function addProduct(product: NewProduct): Promise<string> {
   return invoke("add_product", { product });
 }
+
+export function deleteProduct(id: string): Promise<void> {
+  return invoke("delete_product", { id });
+}

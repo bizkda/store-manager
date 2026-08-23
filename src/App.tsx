@@ -6,6 +6,7 @@ import { PeerManager } from "./features/settings/PeerManager";
 import "./App.css";
 import { useLanguage } from "./i18n/LanguageContext";
 import { useTheme } from "./theme/useTheme";
+import { ProductList } from "./features/product/ProductList";
 
 
 type View = "menu" | "add-product" | "sale" | "settings";
@@ -22,8 +23,6 @@ function App() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const { t, lang, toggleLang } = useLanguage();
   const { theme, toggleTheme } = useTheme();
-
-
 
   function refreshProducts() {
     getProducts().then(setProducts).catch(console.error);
@@ -113,6 +112,13 @@ function App() {
     </main>
   );
 }
+
+const searchInputStyle = {
+    background: "var(--gesso-surface)",
+    borderRadius: "var(--gesso-radius-md)",
+    fontFamily: "var(--gesso-font-body)",
+    color: "var(--gesso-fg)",
+  };
 
   return (
     <main style={{ background: "var(--gesso-canvas)" }} className="min-h-screen px-6 pt-10 pb-6">
@@ -225,6 +231,7 @@ function App() {
           </span>
         </div>
       </div>
+      <ProductList onProductsChanged={refreshProducts} />
     </main>
   );
 }

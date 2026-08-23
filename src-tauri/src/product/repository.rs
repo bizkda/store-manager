@@ -8,8 +8,8 @@ pub trait ProductRepository {
     fn insert(&self, conn: &Connection, product: &NewProduct, id: &str) -> Result<(), String>;
     fn search(&self,conn: &Connection,nom: Option<&str>,prix_min: Option<f64>,prix_max: Option<f64>,) -> Result<Vec<Product>, String>;
     fn restock(&self,conn: &Connection,produit_id: &str,prix_vente: f64,prix_achat: f64,quantite_ajoutee: f64,) -> Result<(), String>; 
-    fn record_movement(&self, conn: &Connection, produit_id: &str, delta: f64, origine_id: &str) -> Result<(), String>;
-}
+    fn record_movement(&self, conn: &Connection , produit_id: &str, delta: f64, origine_id: &str) -> Result<(), String>;
+    fn delete(&self, conn: &Connection, id: &str) -> Result<(), String>;}
 
 pub struct SqliteProductRepository;
 
@@ -157,6 +157,12 @@ impl ProductRepository for SqliteProductRepository {
         ).map_err(|e| e.to_string())?;
 
         Ok(())
+    }
+
+    fn delete(&self, conn: &Connection, id: &str) -> Result<(), String> {
+    conn.execute("DELETE FROM produit WHERE id = ?1", [id])
+        .map_err(|e| e.to_string())?;
+    Ok(())
     }
     
 }

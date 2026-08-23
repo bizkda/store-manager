@@ -58,6 +58,8 @@ export const translations = {
   productNotFound: "Ce produit n'existe pas",
   saleRecorded: "Vente enregistrée",
   error: "Erreur",
+  delete: "Supprimer",
+
 },
   ar: {
   storeManager: "مدير المتجر",
@@ -118,6 +120,7 @@ export const translations = {
   productNotFound: "هذا المنتج غير موجود",
   saleRecorded: "تم تسجيل عملية البيع",
   error: "خطأ",
+  delete: "حذف",
 },
 } as const;
 

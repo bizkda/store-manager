@@ -61,3 +61,17 @@ pub fn restock_product(
 
     Ok(())
 }
+
+#[tauri::command]
+pub fn delete_product(state: State<DbState>, id: String) -> Result<(), String> {
+    let conn = state.conn.lock().map_err(|e| e.to_string())?;
+    SqliteProductRepository.delete(&conn, &id)?;
+    drop(conn);
+
+    let conn_clone = state.conn.clone();
+    tauri::async_runtime::spawn(async move {
+        crate::sync::client::sync_all_known_peers(conn_clone).await;
+    });
+
+    Ok(())
+}

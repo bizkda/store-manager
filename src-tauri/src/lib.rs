@@ -48,6 +48,7 @@ pub fn run() {
             sync::commands::remove_peer,
             sync::commands::get_my_ip,
             sync::commands::scan_network,
+            product::commands::delete_product,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
