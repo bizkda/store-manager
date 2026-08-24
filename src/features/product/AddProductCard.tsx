@@ -2,6 +2,8 @@ import { useState} from "react";
 import { addProduct, getProductByBarcode , restockProduct ,Product} from "../../api/products";
 import { scan, Format, requestPermissions } from "@tauri-apps/plugin-barcode-scanner";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { toggleTorch } from "@tauri-apps/plugin-barcode-scanner";
+
 
 interface AddProductCardProps {
   onProductAdded: () => void;
@@ -30,6 +32,7 @@ export function AddProductCard({ onProductAdded }: AddProductCardProps) {
         setScanning(false);
         return;
       }
+      await toggleTorch(true);
       const result = await scan({
         windowed: false,
         formats: [Format.EAN13, Format.EAN8],
@@ -87,6 +90,17 @@ async function handleRestock(e: React.FormEvent) {
     setQuantite("");
     onProductAdded();
   }
+  const [torchOn, setTorchOn] = useState(false);
+
+  const handleToggleTorch = async () => {
+    try {
+      const nextState = !torchOn;
+      await toggleTorch(nextState);
+      setTorchOn(nextState);
+    } catch (error) {
+      console.error("Impossible de contrôler la torche:", error);
+    }
+  };
 
   const inputStyle = {
     background: "var(--gesso-surface)",
@@ -115,7 +129,19 @@ async function handleRestock(e: React.FormEvent) {
           >
             📷 {t("scanBarcode")}
           </button>
+         
         )}
+         <button
+          type="button"
+          onClick={handleToggleTorch}
+          className={`absolute bottom-4 right-4 rounded-[var(--gesso-radius-md)] px-4 py-3 text-sm font-bold text-white shadow-lg transition-all duration-200 ${
+            torchOn
+              ? "bg-amber-500 hover:bg-amber-600"
+              : "bg-black/60 backdrop-blur-sm hover:bg-black/75"
+          }`}
+        >
+          {torchOn ? "🔦 Éteindre" : "🔦 Allumer"}
+        </button>
       </div>
 
       {/* Moitié basse — fiche produit, style carte du design system */}
