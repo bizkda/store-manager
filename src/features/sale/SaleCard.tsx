@@ -4,6 +4,7 @@ import { checkout, NewSale } from "../../api/sales";
 import { scan, Format, requestPermissions } from "@tauri-apps/plugin-barcode-scanner";
 import { useProductSearch } from "./useProductSearch";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { printReceipt } from "./print";
 
 interface CartItem {
   product: Product;
@@ -92,9 +93,11 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
     };
     try {
       const receipt = await checkout(sale);
+      await printReceipt(receipt, cart);     
       setMessage(`${t("saleRecorded")}: ${receipt.total} DA`);
       setCart([]);
       onSaleComplete();
+    
     } catch (e) {
       setMessage(`${t("error")}: ${e}`);
     }
