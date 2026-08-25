@@ -47,9 +47,8 @@ export async function printReceipt(
       use_gbk: false,
     },
     sections: [
-      { Title: { text: "Store Manager", styles: { ...defaultStyle, bold: true, align: "center", size: "double" } } },
+      { Title: { text: "GRAND BAZARD ANAS", styles: { ...defaultStyle, bold: true, align: "center", size: "double" } } },
       { Line: { character: "=" } },
-      { Text: { text: `Vente: ${receipt.id}`, styles: { ...defaultStyle } } },
       { Text: { text: `Date: ${receipt.date_vente}`, styles: { ...defaultStyle } } },
       { Line: { character: "=" } },
       {
@@ -72,11 +71,13 @@ export async function printReceipt(
       },
       { Line: { character: "=" } },
       { Text: { text: `Total: ${receipt.total.toFixed(2)} DA`, styles: { ...defaultStyle, bold: true, align: "center" } } },
-      { Text: { text: "Merci !", styles: { ...defaultStyle, align: "center" } } },
+      { Text: { text: "Thank you! beautiful you!!!", styles: { ...defaultStyle, align: "center" } } },
       { Line: { character: "-" } },
       { Text: { text: "App développée par bizkda", styles: { ...defaultStyle, align: "center", size: "normal" } } },
       { Text: { text: "linkedin.com/in/bizkda", styles: { ...defaultStyle, align: "center", size: "normal" } } },
-      { Feed: { feed_type: "lines", value: 3 } },
+      { Feed: { feed_type: "lines", value: 0 } },
+      { "Cut": { "mode": "partial", "feed": 0 } }
+
     ],
   };
 

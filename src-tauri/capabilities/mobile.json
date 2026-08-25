@@ -4,6 +4,7 @@
   "platforms": ["android", "iOS"],
   "windows": ["main"],
   "permissions": [
-    "barcode-scanner:default"
+    "barcode-scanner:default",
+    "thermal-printer:default"
   ]
 }
