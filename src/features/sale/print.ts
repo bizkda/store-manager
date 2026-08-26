@@ -34,12 +34,12 @@ export async function printReceipt(
     return;
   }
 
-  console.log("Imprimante sélectionnée:", usbPrinter);
+  console.log("Imprimante sélectionnée:", JSON.stringify(usbPrinter));
 
 
 
   const job: PrintJobRequest = {
-    printer: usbPrinter.name,
+    printer: usbPrinter.identifier,
     paper_size: "Mm80",
     options: {
       code_page: 0,
@@ -74,7 +74,7 @@ export async function printReceipt(
       { Text: { text: "Thank you! beautiful you!!!", styles: { ...defaultStyle, align: "center" } } },
       { Line: { character: "-" } },
       { Text: { text: "App développée par bizkda", styles: { ...defaultStyle, align: "center", size: "normal" } } },
-      { Text: { text: "linkedin.com/in/bizkda", styles: { ...defaultStyle, align: "center", size: "normal" } } },
+      { Text: { text: "Contact: abdrezakmansour@gmail.com", styles: { ...defaultStyle, align: "center", size: "normal" } } },
       { Feed: { feed_type: "lines", value: 0 } },
       { "Cut": { "mode": "partial", "feed": 0 } }
 
