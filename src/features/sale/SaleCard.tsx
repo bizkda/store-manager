@@ -5,6 +5,7 @@ import { scan, Format, requestPermissions } from "@tauri-apps/plugin-barcode-sca
 import { useProductSearch } from "./useProductSearch";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { printReceipt } from "./print";
+import QRCode from "react-qr-code";
 
 interface CartItem {
   product: Product;
@@ -24,6 +25,8 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
   const { t } = useLanguage();
   const [message, setMessage] = useState("");
   const [scanning, setScanning] = useState(false);
+  const [receiptText, setReceiptText] = useState<string | null>(null);
+  
   const { nom, setNom, prixMin, setPrixMin, prixMax, setPrixMax, results, searched } = useProductSearch();
   const [scannedNotFound, setScannedNotFound] = useState(false);
 
@@ -93,7 +96,19 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
     };
     try {
       const receipt = await checkout(sale);
-      await printReceipt(receipt, cart);     
+      /*await printReceipt(receipt, cart); */    
+      const text = [
+      "GRAND BAZARD ANAS",
+      receipt.date_vente,
+      "----------------",
+      ...cart.map(
+        (i) => `${i.product.nom} x${i.quantite} = ${(i.quantite * i.product.prix_vente).toFixed(2)} DA`
+      ),
+      "----------------",
+      `Total: ${receipt.total.toFixed(2)} DA`,
+      ].join("\n");
+
+      setReceiptText(text);
       setMessage(`${t("saleRecorded")}: ${receipt.total} DA`);
       setCart([]);
       onSaleComplete();
@@ -167,6 +182,27 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
             >
               {message}
             </p>
+          )}
+          {receiptText && (
+            <div
+              style={{ background: "var(--gesso-surface)", borderRadius: "var(--gesso-radius-md)" }}
+              className="mt-3 flex flex-col items-center gap-2 p-4"
+            >
+              <p style={{ color: "var(--gesso-fg-muted)", fontFamily: "var(--gesso-font-body)" }} className="text-xs">
+                Scannez pour voir le ticket
+              </p>
+              <div style={{ background: "white", padding: 8, borderRadius: 8 }}>
+                <QRCode value={receiptText} size={140} />
+              </div>
+              <button
+                type="button"
+                onClick={() => setReceiptText(null)}
+                style={{ color: "var(--gesso-primary)", fontFamily: "var(--gesso-font-body)" }}
+                className="text-xs font-bold"
+              >
+                Fermer
+              </button>
+            </div>
           )}
 
           {scannedNotFound && (

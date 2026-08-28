@@ -16,6 +16,9 @@ interface CartItem {
   quantite: number;
 }
 
+// add near the top of the file, outside the component
+const PAYMENT_DEADLINE = new Date("2026-09-05T23:23:59");
+
 function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [view, setView] = useState<View>("menu");
@@ -23,6 +26,7 @@ function App() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const { t, lang, toggleLang } = useLanguage();
   const { theme, toggleTheme } = useTheme();
+  const [pastDeadline, setPastDeadline] = useState(() => new Date() > PAYMENT_DEADLINE);
 
   function refreshProducts() {
     getProducts().then(setProducts).catch(console.error);
@@ -50,6 +54,25 @@ function App() {
   function handleProductAdded() {
     refreshProducts();
     navigateTo(previousView);
+  }
+
+  if (pastDeadline) {
+    return (
+      <main
+        style={{ background: "var(--gesso-canvas)" }}
+        className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center"
+      >
+        <h1
+          style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 900, color: "var(--gesso-fg)" }}
+          className="text-2xl"
+        >
+          accessPaused
+        </h1>
+        <p style={{ fontFamily: "var(--gesso-font-body)", color: "var(--gesso-fg-muted)" }} className="max-w-md text-sm">
+          accessPausedMessage
+        </p>
+      </main>
+    );
   }
 
   if (view === "add-product") {
