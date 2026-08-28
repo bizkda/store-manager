@@ -7,39 +7,32 @@ const defaultStyle = {
 };
 
 export async function printReceipt(
-  receipt: {
-    id: string;
-    date_vente: string;
-    total: number;
-  },
-  cart: {
-    product: {
-      nom: string;
-      prix_vente: number;
-    };
-    quantite: number;
-  }[]
+  receipt: { id: string; date_vente: string; total: number },
+  cart: { product: { nom: string; prix_vente: number }; quantite: number }[],
+  preferredInterface: "usb" | "bluetooth" = "usb"
 ) {
   const printers = await list_thermal_printers();
 
   console.log("=== THERMAL PRINTERS ===");
   console.log(JSON.stringify(printers, null, 2));
 
-  const usbPrinter = printers.find(
-    (p) => p.interface_type.toLowerCase() === "usb"
-  );
+  // Cherche d'abord le type préféré, sinon prend n'importe quelle imprimante disponible
+  const printer =
+    printers.find((p) => p.interface_type.toLowerCase() === preferredInterface) ??
+    printers.find((p) => ["usb", "bluetooth"].includes(p.interface_type.toLowerCase()));
 
-  if (!usbPrinter) {
-    console.error("Aucune imprimante USB détectée");
+  if (!printer) {
+    console.error("Aucune imprimante USB ou Bluetooth détectée");
     return;
   }
 
-  console.log("Imprimante sélectionnée:", JSON.stringify(usbPrinter));
+
+  console.log("Imprimante sélectionnée:", JSON.stringify(printer));
 
 
 
   const job: PrintJobRequest = {
-    printer: usbPrinter.identifier,
+    printer: printer.identifier,
     paper_size: "Mm80",
     options: {
       code_page: 0,
