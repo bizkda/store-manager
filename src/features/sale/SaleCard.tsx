@@ -89,6 +89,7 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
   async function handleCheckout() {
     const sale: NewSale = {
       items: cart.map((i) => ({
+        produit_nom: i.product.nom,
         produit_id: i.product.id,
         quantite: i.quantite,
         prix_unitaire: i.product.prix_vente,
@@ -98,14 +99,20 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
       const receipt = await checkout(sale);
       /*await printReceipt(receipt, cart); */    
       const text = [
-      "GRAND BAZARD ANAS",
-      receipt.date_vente,
-      "----------------",
-      ...cart.map(
-        (i) => `${i.product.nom} x${i.quantite} = ${(i.quantite * i.product.prix_vente).toFixed(2)} DA`
-      ),
-      "----------------",
-      `Total: ${receipt.total.toFixed(2)} DA`,
+        "GRAND BAZARD ANAS",
+        "================",
+        receipt.date_vente,
+        "----------------",
+        ...cart.map(
+          (i) => `${i.product.nom} x ${i.quantite} = ${(i.quantite * i.product.prix_vente).toFixed(2)} DA`
+        ),      { Feed: { feed_type: "lines", value: 0 } },
+
+        `Total: ${receipt.total.toFixed(2)} DA`,
+        
+        "----------------",
+        "Thank you! beautiful you!!!",
+        "",
+        "App développée par abdrezakmansour@gmail.com",
       ].join("\n");
 
       setReceiptText(text);

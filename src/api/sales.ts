@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 
 export interface LigneVenteInput {
+  produit_nom: string;
   produit_id: string;
   quantite: number;
   prix_unitaire: number;

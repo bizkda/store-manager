@@ -29,7 +29,7 @@ impl<R: SaleRepository> SaleService<R> {
             if stock_dispo < item.quantite {
                 return Err(format!(
                     "stock insuffisant pour le produit {} (disponible: {}, demandé: {})",
-                    item.produit_id,
+                    item.produit_nom,
                     stock_dispo,
                     item.quantite
                 ));
