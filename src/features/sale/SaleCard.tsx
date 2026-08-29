@@ -97,7 +97,7 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
     };
     try {
       const receipt = await checkout(sale);
-      /*await printReceipt(receipt, cart); */    
+      await printReceipt(receipt, cart);     
       const text = [
         "GRAND BAZARD ANAS",
         "================",
@@ -112,7 +112,7 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
         "----------------",
         "Thank you! beautiful you!!!",
         "",
-        "App développée par abdrezakmansour@gmail.com",
+        "App développée par abdrezakworks@gmail.com",
       ].join("\n");
 
       setReceiptText(text);

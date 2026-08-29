@@ -26,7 +26,7 @@ function App() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const { t, lang, toggleLang } = useLanguage();
   const { theme, toggleTheme } = useTheme();
-  const [pastDeadline, setPastDeadline] = useState(() => new Date() > PAYMENT_DEADLINE);
+  const [pastDeadline] = useState(() => new Date() > PAYMENT_DEADLINE);
 
   function refreshProducts() {
     getProducts().then(setProducts).catch(console.error);

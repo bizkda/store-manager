@@ -66,7 +66,7 @@ export async function printReceipt(
       { Text: { text: `Total: ${receipt.total.toFixed(2)} DA`, styles: { ...defaultStyle, bold: true, align: "center" } } },
       { Text: { text: "Thank you! beautiful you!!!", styles: { ...defaultStyle, align: "center" } } },
       { Line: { character: "-" } },
-      { Text: { text: "App développée par abdrezakmansour@gmail.com", styles: { ...defaultStyle, align: "center", size: "normal" } } },
+      { Text: { text: "App développée par abdrezakworks@gmail.com", styles: { ...defaultStyle, align: "center", size: "normal" } } },
       { Feed: { feed_type: "lines", value: 0 } },
       { "Cut": { "mode": "partial", "feed": 0 } }
 
