@@ -29,7 +29,21 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
   
   const { nom, setNom, prixMin, setPrixMin, prixMax, setPrixMax, results, searched } = useProductSearch();
   const [scannedNotFound, setScannedNotFound] = useState(false);
+  const [discountType, setDiscountType] = useState<"none" | "percent" | "amount">("none");
+  const [discountValue, setDiscountValue] = useState(0);
 
+  const subtotal = cart.reduce((sum, i) => sum + i.product.prix_vente * i.quantite, 0);
+
+  const discountAmount =
+    discountType === "percent"
+      ? (subtotal * discountValue) / 100
+      : discountType === "amount"
+      ? discountValue
+      : 0;
+
+
+  const new_total = Math.max(subtotal - discountAmount, 0);
+  
   async function startScan() {
     setScanning(true);
     try {
@@ -83,8 +97,6 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
       );
     });
   }
-
-  const total = cart.reduce((sum, i) => sum + i.quantite * i.product.prix_vente, 0);
 
   async function handleCheckout() {
     const sale: NewSale = {
@@ -338,10 +350,10 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
   </p>
 ) : (
   <ul className="flex flex-col gap-2">
-    {cart.map((i) => (
+    {cart.reverse().map((i , index) => (
       <li
         key={i.product.id}
-        style={{ background: "var(--gesso-surface)", borderRadius: "var(--gesso-radius-md)" }}
+        style={{ background: index === 0 ? "var(--gesso-primary)" : "var(--gesso-surface)", borderRadius: "var(--gesso-radius-md)" }}
         className="flex flex-col gap-2 px-4 py-3 text-sm"
       >
         <div className="flex items-center justify-between">
@@ -399,35 +411,99 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
 )}
         </div>
 
-        {/* Footer checkout */}
-        <div
-          style={{ borderTop: "1px solid var(--gesso-divider)", background: "var(--gesso-canvas)" }}
-          className="shrink-0 p-5"
+       {/* Footer checkout */}
+<div
+  style={{ borderTop: "1px solid var(--gesso-divider)", background: "var(--gesso-canvas)" }}
+  className="shrink-0 flex flex-col gap-3 p-4"
+>
+  {/* Remise — pills + input inline */}
+  <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1">
+      {[
+        { value: "none", label: "—" },
+        { value: "percent", label: "%" },
+        { value: "amount", label: "DA" },
+      ].map((opt) => (
+        <button
+          key={opt.value}
+          type="button"
+          onClick={() => {
+            setDiscountType(opt.value as "none" | "percent" | "amount");
+            setDiscountValue(0);
+          }}
+          style={{
+            background:
+              discountType === opt.value
+                ? "var(--gesso-primary)"
+                : "var(--gesso-surface-elevated)",
+            color: discountType === opt.value ? "white" : "var(--gesso-fg)",
+            borderRadius: "var(--gesso-radius-md)",
+            fontFamily: "var(--gesso-font-body)",
+          }}
+          className="h-7 w-9 text-xs font-bold transition active:scale-95"
         >
-          <div className="mb-3 flex items-center justify-between">
-            <span style={{ fontFamily: "var(--gesso-font-body)", color: "var(--gesso-fg-muted)" }} className="text-base">
-              {t("total")}
-            </span>
-            <span
-              style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 900, color: "var(--gesso-fg)" }}
-              className="text-2xl"
-            >
-              {total.toFixed(2)}
-            </span>
-          </div>
-
-          {cart.length > 0 && (
-            <button
-              type="button"
-              onClick={handleCheckout}
-              style={{ background: "var(--gesso-primary)", borderRadius: "var(--gesso-radius-md)" }}
-              className="w-full py-4 text-base font-bold text-white transition active:scale-95"
-            >
-              {t("checkout")}
-            </button>
-          )}
-        </div>
-      </div>
+          {opt.label}
+        </button>
+      ))}
     </div>
+
+    {discountType !== "none" && (
+      <input
+        type="number"
+        min={0}
+        autoFocus
+        value={discountValue}
+        onChange={(e) => setDiscountValue(parseFloat(e.target.value) || 0)}
+        style={{
+          background: "var(--gesso-surface-elevated)",
+          borderRadius: "var(--gesso-radius-md)",
+          fontFamily: "var(--gesso-font-body)",
+          color: "var(--gesso-fg)",
+        }}
+        className="h-7 w-16 px-2 text-center text-xs outline-none"
+      />
+    )}
+
+    {/* Sous-total / remise condensés à droite (pas le total, il est en bas) */}
+    <div
+      className="ml-auto flex items-center gap-2 text-xs"
+      style={{ fontFamily: "var(--gesso-font-body)", color: "var(--gesso-fg-muted)" }}
+    >
+      <span>{subtotal.toFixed(2)}</span>
+      {discountAmount > 0 && (
+        <span style={{ color: "var(--gesso-secondary)" }}>-{discountAmount.toFixed(2)}</span>
+      )}
+    </div>
+  </div>
+
+  {/* Total + checkout */}
+  <div className="flex items-center justify-between">
+    <span
+      style={{ fontFamily: "var(--gesso-font-body)", color: "var(--gesso-fg-muted)" }}
+      className="text-base"
+    >
+      {t("total")}
+    </span>
+    <span
+      style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 900, color: "var(--gesso-fg)" }}
+      className="text-2xl"
+    >
+      {new_total.toFixed(2)}
+    </span>
+  </div>
+
+  {cart.length > 0 && (
+    <button
+      type="button"
+      onClick={handleCheckout}
+      style={{ background: "var(--gesso-primary)", borderRadius: "var(--gesso-radius-md)" }}
+      className="w-full py-4 text-base font-bold text-white transition active:scale-95"
+    >
+      {t("checkout")}
+    </button>
+  )}
+</div>
+    </div>
+  </div>
   );
 }
