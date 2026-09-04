@@ -43,7 +43,7 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
 
 
   const new_total = Math.max(subtotal - discountAmount, 0);
-  
+  const [searchOpen, setSearchOpen] = useState(false);
   async function startScan() {
     setScanning(true);
     try {
@@ -109,19 +109,30 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
     };
     try {
       const receipt = await checkout(sale);
+      receipt.total = new_total;
       await printReceipt(receipt, cart);     
       const text = [
         "GRAND BAZARD ANAS",
         "================",
-        receipt.date_vente,
-        "----------------",
+        `DATE: ${new Date(receipt.date_vente).toLocaleString("fr-FR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        })}`,
+        "-------Articles---------",
         ...cart.map(
           (i) => `${i.product.nom} x ${i.quantite} = ${(i.quantite * i.product.prix_vente).toFixed(2)} DA`
-        ),      { Feed: { feed_type: "lines", value: 0 } },
+        ),   
 
+        "--------Total--------",   
+
+        `SubTotal: ${subtotal} DA`,
+        `Remise: ${discountAmount} DA`,
         `Total: ${receipt.total.toFixed(2)} DA`,
         
-        "----------------",
+        "--------Thank you--------",
         "Thank you! beautiful you!!!",
         "",
         "App développée par abdrezakworks@gmail.com",
@@ -181,14 +192,6 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
       >
         {/* Header */}
         <div style={{ borderBottom: "1px solid var(--gesso-divider)" }} className="shrink-0 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <h2
-              style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 900, color: "var(--gesso-fg)" }}
-              className="text-xl"
-            >
-              {t("makeSale")}
-            </h2>
-          </div>
 
           {message && (
             <p
@@ -242,61 +245,67 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
           )}
         </div>
         {/* Barre de recherche */}
-
         <div
           style={{ background: "var(--gesso-canvas)" }}
           className="flex flex-col gap-2 px-6 py-3"
         >
-          {/* Nom */}
-          <h3
+          {/* Nom — now a toggle */}
+          <button
+            onClick={() => setSearchOpen((prev) => !prev)}
             style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 700, color: "var(--gesso-fg-muted)" }}
-            className="mb-2 text-xs uppercase tracking-wide"
+            className="mb-2 flex items-center justify-between text-xs uppercase tracking-wide"
           >
             {t("search")}
-          </h3>
+            <span
+              style={{
+                transform: searchOpen ? "rotate(180deg)" : "rotate(0deg)",
+                transition: "transform 150ms ease-out",
+              }}
+            >
+              ▾
+            </span>
+          </button>
 
-          <div className="">
-            <input
-              placeholder={t("searchPlaceholder")}
-              value={nom}
-              onChange={(e) => setNom(e.target.value)}
-              style={searchInputStyle}
-              className="w-full px-3 py-2 text-sm outline-none"
-            />
-          </div>
+          {searchOpen && (
+            <>
+              <div>
+                <input
+                  placeholder={t("searchPlaceholder")}
+                  value={nom}
+                  onChange={(e) => setNom(e.target.value)}
+                  style={searchInputStyle}
+                  className="w-full px-3 py-2 text-sm outline-none"
+                />
+              </div>
 
-          {/* Prix */}
-          <div className="flex gap-2 w-full">
-            <input
-              placeholder={t("priceMin")}
-              type="number"
-              value={prixMin}
-              onChange={(e) => setPrixMin(e.target.value)}
-              style={searchInputStyle}
-              className="flex-1 min-w-0 px-3 py-2 text-sm outline-none"
-            />
+              {/* Prix */}
+              <div className="flex w-full gap-2">
+                <input
+                  placeholder={t("priceMin")}
+                  type="number"
+                  value={prixMin}
+                  onChange={(e) => setPrixMin(e.target.value)}
+                  style={searchInputStyle}
+                  className="min-w-0 flex-1 px-3 py-2 text-sm outline-none"
+                />
 
-            <input
-              placeholder={t("priceMax")}
-              type="number"
-              value={prixMax}
-              onChange={(e) => setPrixMax(e.target.value)}
-              style={searchInputStyle}
-              className="flex-1 min-w-0 px-3 py-2 text-sm outline-none"
-            />
-          </div>
+                <input
+                  placeholder={t("priceMax")}
+                  type="number"
+                  value={prixMax}
+                  onChange={(e) => setPrixMax(e.target.value)}
+                  style={searchInputStyle}
+                  className="min-w-0 flex-1 px-3 py-2 text-sm outline-none"
+                />
+              </div>
+            </>
+          )}
         </div>
 
         {/* Contenu scrollable */}
         <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
 
             <>
-              <h3
-                style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 700, color: "var(--gesso-fg-muted)" }}
-                className="mb-2 text-xs uppercase tracking-wide"
-              >
-                {t("products")}
-              </h3>
               {searched && results.length === 0 && (
                 <p style={{ color: "var(--gesso-fg-muted)" }} className="text-sm">
                   {t("productNotFound")} —{" "}
@@ -350,10 +359,10 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
   </p>
 ) : (
   <ul className="flex flex-col gap-2">
-    {cart.reverse().map((i , index) => (
+    {[...cart].reverse().map((i ) => (
       <li
         key={i.product.id}
-        style={{ background: index === 0 ? "var(--gesso-primary)" : "var(--gesso-surface)", borderRadius: "var(--gesso-radius-md)" }}
+        style={{ background:"var(--gesso-cart)" , borderRadius: "var(--gesso-radius-md)" }}
         className="flex flex-col gap-2 px-4 py-3 text-sm"
       >
         <div className="flex items-center justify-between">

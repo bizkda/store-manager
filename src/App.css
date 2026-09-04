@@ -19,6 +19,7 @@
   --gesso-success: #149343;
   --gesso-shadow-lg: 0 1px 2px rgba(0,0,0,0.04);
   --gesso-divider: #d8d8d8;
+  --gesso-cart: #e6e642;
 }
 
 [data-theme="dark"] {
