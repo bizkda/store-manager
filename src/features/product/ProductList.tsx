@@ -9,7 +9,7 @@ interface ProductListProps {
 export function ProductList({ onProductsChanged }: ProductListProps) {
   const { t } = useLanguage();
   const { nom, setNom, prixMin, setPrixMin, prixMax, setPrixMax, results, searched, refetch } = useProductSearch();
-  const { removeProduct } = useProductDelete(() => {
+  const { removeProduct, error, isDeleting } = useProductDelete(() => {
     onProductsChanged();
     refetch();
   });
@@ -24,6 +24,11 @@ export function ProductList({ onProductsChanged }: ProductListProps) {
   return (
     <>
       <div style={{ background: "var(--gesso-canvas)" }} className="flex flex-col gap-2 px-6 py-3">
+        {error && (
+          <p style={{ color: "var(--gesso-error)" }} className="text-xs">
+            {error}
+          </p>
+        )}
         <h3
           style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 700, color: "var(--gesso-fg-muted)" }}
           className="mb-2 text-xs uppercase tracking-wide"
@@ -85,11 +90,11 @@ export function ProductList({ onProductsChanged }: ProductListProps) {
                   {p.nom} — {p.prix_vente} DA — stock: {p.quantite}
                 </span>
                 <button
-                  onClick={() => removeProduct(p.id)}
+                  onClick={() => removeProduct(p.id) } disabled={isDeleting}
                   style={{ background: "var(--gesso-secondary)", borderRadius: "var(--gesso-radius-md)" }}
                   className="px-3 py-1.5 text-sm font-medium text-white transition active:scale-95"
                 >
-                  {t("delete") ?? "Supprimer"}
+                  {isDeleting ? "..." : t("delete")} 
                 </button>
               </li>
             ))}

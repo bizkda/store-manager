@@ -27,6 +27,8 @@ function App() {
   const { t, lang, toggleLang } = useLanguage();
   const { theme, toggleTheme } = useTheme();
   const [pastDeadline] = useState(() => new Date() > PAYMENT_DEADLINE);
+  const [message, setMessage] = useState("");
+
 
   function refreshProducts() {
     getProducts().then(setProducts).catch(console.error);
