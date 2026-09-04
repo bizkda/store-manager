@@ -4,7 +4,7 @@ import { checkout, NewSale } from "../../api/sales";
 import { scan, Format, requestPermissions } from "@tauri-apps/plugin-barcode-scanner";
 import { useProductSearch } from "./useProductSearch";
 import { useLanguage } from "../../i18n/LanguageContext";
-import { printReceipt } from "./print";
+/*import { printReceipt } from "./print";*/
 import QRCode from "react-qr-code";
 
 interface CartItem {
@@ -110,7 +110,7 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
     try {
       const receipt = await checkout(sale);
       receipt.total = new_total;
-      await printReceipt(receipt, cart);     
+      {/*await printReceipt(receipt, cart);   */}  
       const text = [
         "GRAND BAZARD ANAS",
         "================",

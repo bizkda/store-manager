@@ -24,11 +24,7 @@ export function ProductList({ onProductsChanged }: ProductListProps) {
   return (
     <>
       <div style={{ background: "var(--gesso-canvas)" }} className="flex flex-col gap-2 px-6 py-3">
-        {error && (
-          <p style={{ color: "var(--gesso-error)" }} className="text-xs">
-            {error}
-          </p>
-        )}
+        
         <h3
           style={{ fontFamily: "var(--gesso-font-display)", fontWeight: 700, color: "var(--gesso-fg-muted)" }}
           className="mb-2 text-xs uppercase tracking-wide"
@@ -71,6 +67,18 @@ export function ProductList({ onProductsChanged }: ProductListProps) {
         >
           {t("products")}
         </h3>
+        {error && (
+          <p  style={{
+                background: "rgba(91,63,228,0.1)",
+                color: "var(--gesso-error)",
+                fontFamily: "var(--gesso-font-body)",
+              }}
+              className="mb-4 rounded-lg px-3 py-2 text-sm font-medium">
+            {error}
+          </p>
+         
+          
+        )}
 
         {searched && results.length === 0 && (
           <p style={{ color: "var(--gesso-fg-muted)" }} className="text-sm">
