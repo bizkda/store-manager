@@ -56,7 +56,7 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
       }
       const result = await scan({
         windowed: false,
-        formats: [Format.EAN13, Format.EAN8],
+        formats: [Format.EAN13, Format.EAN8, Format.UPC_A, Format.UPC_E],
       });
 
       const product = await getProductByBarcode(result.content);
