@@ -6,6 +6,7 @@ import { useProductSearch } from "./useProductSearch";
 import { useLanguage } from "../../i18n/LanguageContext";
 /*import { printReceipt } from "./print";*/
 import QRCode from "react-qr-code";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface CartItem {
   product: Product;
@@ -358,13 +359,20 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
     {t("emptyCart")}
   </p>
 ) : (
+  <AnimatePresence>
   <ul className="flex flex-col gap-2">
     {[...cart].reverse().map((i ) => (
-      <li
-        key={i.product.id}
-        style={{ background:"var(--gesso-cart)" , borderRadius: "var(--gesso-radius-md)" }}
+      <motion.li
+         key={i.product.id}
+        layout
+        initial={{ opacity: 0, y: -8, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, x: 20, scale: 0.9 }}
+        transition={{ duration: 0.2 }}
+        style={{ background: "var(--gesso-cart)", borderRadius: "var(--gesso-radius-md)" }}
         className="flex flex-col gap-2 px-4 py-3 text-sm"
       >
+
         <div className="flex items-center justify-between">
           <span style={{ fontFamily: "var(--gesso-font-body)", color: "var(--gesso-fg)" }}>
             {i.product.nom}
@@ -414,9 +422,10 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
         >
           {(i.quantite * i.product.prix_vente).toFixed(2)}
         </span>
-      </li>
+      </motion.li>
     ))}
   </ul>
+  </AnimatePresence>
 )}
         </div>
 
