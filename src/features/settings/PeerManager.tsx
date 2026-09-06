@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { save, open } from "@tauri-apps/plugin-dialog";
+import { writeTextFile, readTextFile } from "@tauri-apps/plugin-fs";
 
 export function PeerManager() {
   const { t } = useLanguage();
@@ -59,6 +61,24 @@ export function PeerManager() {
       setScanning(false);
     }
   }
+
+
+async function handleExport() {
+  const json = await invoke<string>("export_data");
+  const path = await save({ defaultPath: "store-manager-backup.json" });
+  if (path) {
+    await writeTextFile(path, json);
+  }
+}
+
+async function handleImport() {
+  const path = await open({ filters: [{ name: "JSON", extensions: ["json"] }] });
+  if (path && typeof path === "string") {
+    const json = await readTextFile(path);
+    const [products, movements] = await invoke<[number, number]>("import_data", { jsonData: json });
+    alert(`${products} produits et ${movements} mouvements importés`);
+  }
+}
 
   const inputStyle = {
     background: "var(--gesso-surface-elevated)",

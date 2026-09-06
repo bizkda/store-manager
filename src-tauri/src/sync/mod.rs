@@ -4,3 +4,4 @@ pub mod client;
 pub mod commands;
 pub mod peers;
 pub mod discovery;
+pub mod backup;
