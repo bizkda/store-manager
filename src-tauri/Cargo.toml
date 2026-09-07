@@ -29,8 +29,6 @@ tokio = { version = "1.53.1", features = ["full"] }
 reqwest = { version = "0.13.4", default-features = false, features = ["json", "rustls"] }
 local-ip-address = "0.6.13"
 tauri-plugin-thermal-printer = "2.1.4"
-tauri-plugin-fs = "2.5.2"
-tauri-plugin-dialog = "2.7.3"
 
 [target.'cfg(any(target_os = "android", target_os = "ios"))'.dependencies]
 tauri-plugin-barcode-scanner = "2.4.5"

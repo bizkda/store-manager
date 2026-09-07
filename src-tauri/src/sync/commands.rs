@@ -33,15 +33,3 @@ pub fn get_my_ip() -> Result<String, String> {
 pub async fn scan_network(my_ip: String) -> Result<Vec<String>, String> {
     Ok(super::discovery::scan_local_network(&my_ip).await)
 }
-
-#[tauri::command]
-pub fn export_data(state: State<DbState>) -> Result<String, String> {
-    let conn = state.conn.lock().map_err(|e| e.to_string())?;
-    super::backup::export_all(&conn)
-}
-
-#[tauri::command]
-pub fn import_data(state: State<DbState>, json_data: String) -> Result<(usize, usize), String> {
-    let conn = state.conn.lock().map_err(|e| e.to_string())?;
-    super::backup::import_all(&conn, &json_data)
-}
