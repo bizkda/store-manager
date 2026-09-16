@@ -17,7 +17,7 @@ interface CartItem {
 }
 
 // add near the top of the file, outside the component
-const PAYMENT_DEADLINE = new Date("2027-09-15T23:23:59");
+const PAYMENT_DEADLINE = new Date("2026-10-20T23:23:59");
 
 function App() {
   const [products, setProducts] = useState<Product[]>([]);
