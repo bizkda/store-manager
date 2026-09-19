@@ -61,6 +61,12 @@ export const translations = {
   delete: "Supprimer",
   scanBarcode: "Scanner un code-barre",
 
+  addManualProduct: "Article sans code-barre",
+  productName: "Nom du produit",
+  price: "Prix",
+  addToCart: "Ajouter au panier",
+  invalidManualProduct: "Nom ou prix invalide",
+
 },
   ar: {
   storeManager: "مدير المتجر",
@@ -123,6 +129,13 @@ export const translations = {
   error: "خطأ",
   delete: "حذف",
   scanBarcode: "مسح الباركود",
+
+  addManualProduct: "منتج بدون باركود",
+  productName: "اسم المنتج",
+  price: "السعر",
+
+  addToCart: "أضف إلى السلة",
+  invalidManualProduct: "الاسم أو السعر غير صالح",
 
 },
 } as const;

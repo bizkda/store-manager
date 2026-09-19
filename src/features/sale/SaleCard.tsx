@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { getProductByBarcode, Product } from "../../api/products";
+import { addProduct, getProductByBarcode, Product } from "../../api/products";
 import { checkout, NewSale } from "../../api/sales";
 import { scan, Format, requestPermissions } from "@tauri-apps/plugin-barcode-scanner";
 import { useProductSearch } from "./useProductSearch";
 import { useLanguage } from "../../i18n/LanguageContext";
-/*import { printReceipt } from "./print";*/
+import { printReceipt } from "./print";
 import QRCode from "react-qr-code";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -32,6 +32,11 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
   const [scannedNotFound, setScannedNotFound] = useState(false);
   const [discountType, setDiscountType] = useState<"none" | "percent" | "amount">("none");
   const [discountValue, setDiscountValue] = useState(0);
+
+  const [manualOpen, setManualOpen] = useState(false);
+  const [manualName, setManualName] = useState("");
+  const [manualPrice, setManualPrice] = useState("");
+  const [manualQty, setManualQty] = useState("1");
 
   const subtotal = cart.reduce((sum, i) => sum + i.product.prix_vente * i.quantite, 0);
 
@@ -75,7 +80,46 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
     }
   }
 
+async function addManualProduct() {
+  const price = parseFloat(manualPrice);
+  const qty = parseFloat(manualQty) || 1;
 
+  if (!manualName.trim() || isNaN(price) || price < 0) {
+    setMessage(t("invalidManualProduct") || "Nom ou prix invalide");
+    return;
+  }
+
+  try {
+    const newProductId = await addProduct({
+      nom: manualName.trim(),
+      code_barre: null,       // pas de code-barre
+      prix_vente: price,
+      prix_achat: 0,          // ou demandez-le aussi si besoin
+      quantite: qty,          // stock initial = quantité vendue
+      seuil_reappro: 0,
+    });
+
+    const manualProduct: Product = {
+      id: newProductId,
+      nom: manualName.trim(),
+      code_barre: null,
+      prix_vente: price,
+      prix_achat: 0,
+      quantite: qty,
+      seuil_reappro: 0,
+    };
+
+    setCart((prev) => [...prev, { product: manualProduct, quantite: qty }]);
+    setMessage(`${manualProduct.nom} ${t("addedToCart")}`);
+
+    setManualName("");
+    setManualPrice("");
+    setManualQty("1");
+    setManualOpen(false);
+  } catch (e) {
+    setMessage(`${t("error")}: ${e}`);
+  }
+}
   function addToCart(product: Product) {
     setCart((prev) => {
       const existing = prev.find((i) => i.product.id === product.id);
@@ -107,11 +151,12 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
         quantite: i.quantite,
         prix_unitaire: i.product.prix_vente,
       })),
+      
     };
     try {
       const receipt = await checkout(sale);
       receipt.total = new_total;
-      {/*await printReceipt(receipt, cart);   */}  
+      await printReceipt(receipt, cart);     
       const text = [
         "GRAND BAZARD ANAS",
         "================",
@@ -302,7 +347,63 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
             </>
           )}
         </div>
+         <div className="flex flex-col items-center">
+  <button
+    type="button"
+    onClick={() => setManualOpen((prev) => !prev)}
+    style={{
+      background: "var(--gesso-surface-elevated)",
+      borderRadius: "var(--gesso-radius-md)",
+      fontFamily: "var(--gesso-font-body)",
+      color: "var(--gesso-fg)",
+    }}
+    className="mt-1 px-3 py-1.5 text-xs font-bold"
+  >
+    ➕ {t("addManualProduct") || "Article sans code-barre"}
+  </button>
 
+  {manualOpen && (
+    <div
+      style={{ background: "var(--gesso-surface)", borderRadius: "var(--gesso-radius-md)" }}
+      className="mt-2 flex w-full max-w-sm flex-col items-center gap-2 p-3"
+    >
+      <input
+        placeholder={t("productName") || "Nom du produit"}
+        value={manualName}
+        onChange={(e) => setManualName(e.target.value)}
+        style={searchInputStyle}
+        className="w-full px-3 py-2 text-center text-sm outline-none"
+      />
+      <div className="flex w-full justify-center gap-2">
+        <input
+          placeholder={t("price") || "Prix"}
+          type="number"
+          value={manualPrice}
+          onChange={(e) => setManualPrice(e.target.value)}
+          style={searchInputStyle}
+          className="min-w-0 flex-1 px-3 py-2 text-center text-sm outline-none"
+        />
+        <input
+          placeholder={t("quantity") || "Qté"}
+          type="number"
+          value={manualQty}
+          onChange={(e) => setManualQty(e.target.value)}
+          style={searchInputStyle}
+          className="w-16 px-3 py-2 text-center text-sm outline-none"
+        />
+      </div>
+
+      <button
+        type="button"
+        onClick={addManualProduct}
+        style={{ background: "var(--gesso-secondary)", borderRadius: "var(--gesso-radius-md)" }}
+        className="w-full py-2 text-sm font-bold text-white transition active:scale-95"
+      >
+        {t("addToCart") || "Ajouter au panier"}
+      </button>
+    </div>
+  )}
+</div>
         {/* Contenu scrollable */}
         <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
 
