@@ -66,6 +66,7 @@ export const translations = {
   price: "Prix",
   addToCart: "Ajouter au panier",
   invalidManualProduct: "Nom ou prix invalide",
+  
 
 },
   ar: {

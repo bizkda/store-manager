@@ -8,6 +8,7 @@ import { printReceipt } from "./print";
 import QRCode from "react-qr-code";
 import { motion, AnimatePresence } from "framer-motion";
 
+
 interface CartItem {
   product: Product;
   quantite: number;
@@ -69,6 +70,7 @@ export function SaleCard({ cart, setCart, onSaleComplete, onNavigateToAddProduct
         addToCart(product);
         setMessage(`${product.nom} ${t("addedToCart")}`);
         setScannedNotFound(false);
+        playScanFeedback(); // ← add this
       } else {
         setMessage("");
         setScannedNotFound(true);
@@ -142,7 +144,28 @@ async function addManualProduct() {
       );
     });
   }
+  function playScanFeedback() {
+    // Audio beep
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = 1000; // pitch of the beep
+      gain.gain.setValueAtTime(0.15, ctx.currentTime); // keep it quiet
+      osc.start();
+      osc.stop(ctx.currentTime + 0.1); // 100ms beep
+      osc.onended = () => ctx.close();
+    } catch (e) {
+      console.error("Beep failed:", e);
+    }
 
+    // Haptic feedback (mobile devices that support it)
+    if (navigator.vibrate) {
+      navigator.vibrate(60);
+    }
+  }
   async function handleCheckout() {
     const sale: NewSale = {
       items: cart.map((i) => ({
@@ -203,39 +226,44 @@ async function addManualProduct() {
 
   return (
     <div className="flex h-screen flex-col" >
+      
       {/* Zone caméra */}
-      <div className="relative h-1/8 min-h-0 overflow-hidden">
-        {scanning ? (
-          <p
-            style={{ fontFamily: "var(--gesso-font-body)" }}
-            className="absolute top-6 left-0 right-0 text-center text-sm font-medium text-white drop-shadow-lg"
-          >
-            {t("scanPrompt")}
-          </p>
-        ) : (
-          <button
-            type="button"
-            onClick={startScan}
-            style={{ background: "var(--gesso-primary)", borderRadius: "var(--gesso-radius-md)" }}
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 px-5 py-3 text-sm font-bold text-white shadow-lg"
-          >
-            📷 {t("scanBarcode")}
-          </button>
-        )}
-      </div>
+<div
+  className={`relative min-h-0 overflow-hidden transition-all duration-300 ease-in-out ${
+    scanning ? "h-1/4" : "h-16"
+  }`}
+>
+  {scanning ? (
+    <p
+      style={{ fontFamily: "var(--gesso-font-body)" }}
+      className="absolute top-6 left-0 right-0 text-center text-sm font-medium text-white drop-shadow-lg"
+    >
+      {t("scanPrompt")}
+    </p>
+  ) : (
+    <button
+      type="button"
+      onClick={startScan}
+      style={{ background: "var(--gesso-primary)", borderRadius: "var(--gesso-radius-md)" }}
+      className="absolute bottom-2 left-1/2 -translate-x-1/2 px-5 py-2.5 text-sm font-bold text-white shadow-lg"
+    >
+      📷 {t("scanBarcode")}
+    </button>
+  )}
+</div>
 
 
 
       {/* Fiche vente */}
-      <div
-        style={{
-          background: "var(--gesso-canvas)",
-          borderTopLeftRadius: "var(--gesso-radius-lg)",
-          borderTopRightRadius: "var(--gesso-radius-lg)",
-          boxShadow: "var(--gesso-shadow-lg)",
-        }}
-        className="flex h-7/8 min-h-0 flex-col"
-      >
+     <div
+  style={{
+    background: "var(--gesso-canvas)",
+    borderTopLeftRadius: "var(--gesso-radius-lg)",
+    borderTopRightRadius: "var(--gesso-radius-lg)",
+    boxShadow: "var(--gesso-shadow-lg)",
+  }}
+  className="flex flex-1 min-h-0 flex-col transition-all duration-300 ease-in-out"
+>
         {/* Header */}
         <div style={{ borderBottom: "1px solid var(--gesso-divider)" }} className="shrink-0 px-6 py-4">
 
