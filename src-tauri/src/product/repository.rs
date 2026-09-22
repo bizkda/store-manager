@@ -1,8 +1,9 @@
 use rusqlite::OptionalExtension;
-use crate::product::model::{NewProduct, Product};
+use crate::product::model::{NewProduct, Product, ProductUpdate};
 use rusqlite::Connection;
 
 pub trait ProductRepository {
+    fn update(&self, conn: &Connection, id: &str, product: &ProductUpdate) -> Result<(), String>;
     fn get_all(&self, conn: &Connection) -> Result<Vec<Product>, String>;
     fn get_by_barcode(&self, conn: &Connection, code_barre: &str) -> Result<Option<Product>, String>;
     fn insert(&self, conn: &Connection, product: &NewProduct, id: &str) -> Result<(), String>;
@@ -164,6 +165,27 @@ impl ProductRepository for SqliteProductRepository {
     conn.execute("DELETE FROM produit WHERE id = ?1", [id])
         .map_err(|e| e.to_string())?;
     Ok(())
+    }
+    fn update(&self, conn: &Connection, id: &str, product: &ProductUpdate) -> Result<(), String> {
+        let now = chrono::Utc::now().to_rfc3339();
+        let rows_affected = conn.execute(
+            "UPDATE produit SET nom = ?1, code_barre = ?2, prix_vente = ?3, prix_achat = ?4, seuil_reappro = ?5, updated_at = ?6 WHERE id = ?7",
+            (
+                &product.nom,
+                &product.code_barre,
+                product.prix_vente,
+                product.prix_achat,
+                product.seuil_reappro,
+                &now,
+                id,
+            ),
+        )
+        .map_err(|e| e.to_string())?;
+
+        if rows_affected == 0 {
+            return Err("Produit introuvable".to_string());
+        }
+        Ok(())
     }
     
 }

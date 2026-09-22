@@ -21,3 +21,12 @@ pub struct NewProduct {
     pub quantite: f64,
     pub seuil_reappro: f64,
 }
+// add below NewProduct
+#[derive(Debug, Deserialize)]
+pub struct ProductUpdate {
+    pub nom: String,
+    pub code_barre: Option<String>,
+    pub prix_vente: f64,
+    pub prix_achat: f64,
+    pub seuil_reappro: f64,
+}

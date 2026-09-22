@@ -1,7 +1,21 @@
 use crate::db::DbState;
-use crate::product::model::{NewProduct, Product};
 use crate::product::repository::{ProductRepository, SqliteProductRepository};
 use tauri::State;
+use crate::product::model::{NewProduct, Product, ProductUpdate};
+
+#[tauri::command]
+pub fn update_product(state: State<DbState>, id: String, product: ProductUpdate) -> Result<(), String> {
+    let conn = state.conn.lock().map_err(|e| e.to_string())?;
+    SqliteProductRepository.update(&conn, &id, &product)?;
+    drop(conn);
+
+    let conn_clone = state.conn.clone();
+    tauri::async_runtime::spawn(async move {
+        crate::sync::client::sync_all_known_peers(conn_clone).await;
+    });
+
+    Ok(())
+}
 
 #[tauri::command]
 pub fn get_products(state: State<DbState>) -> Result<Vec<Product>, String> {
@@ -65,6 +79,23 @@ pub fn restock_product(
 pub fn delete_product(state: State<DbState>, id: String) -> Result<(), String> {
     let conn = state.conn.lock().map_err(|e| e.to_string())?;
     SqliteProductRepository.delete(&conn, &id)?;
+    drop(conn);
+
+    let conn_clone = state.conn.clone();
+    tauri::async_runtime::spawn(async move {
+        crate::sync::client::sync_all_known_peers(conn_clone).await;
+    });
+
+    Ok(())
+}
+#[tauri::command]
+pub fn adjust_product_quantity(
+    state: State<DbState>,
+    produit_id: String,
+    delta: f64,
+) -> Result<(), String> {
+    let conn = state.conn.lock().map_err(|e| e.to_string())?;
+    SqliteProductRepository.record_movement(&conn, &produit_id, delta, "ajustement_manuel")?;
     drop(conn);
 
     let conn_clone = state.conn.clone();

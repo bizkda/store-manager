@@ -38,6 +38,17 @@ export function restockProduct(
 ): Promise<void> {
   return invoke("restock_product", { produitId, prixVente, prixAchat, quantiteAjoutee });
 }
+export interface ProductUpdate {
+  nom: string;
+  code_barre: string | null;
+  prix_vente: number;
+  prix_achat: number;
+  seuil_reappro: number;
+}
+
+export function updateProduct(id: string, product: ProductUpdate): Promise<void> {
+  return invoke("update_product", { id, product });
+}
 
 export function getProducts(): Promise<Product[]> {
   return invoke("get_products");
@@ -53,4 +64,7 @@ export function addProduct(product: NewProduct): Promise<string> {
 
 export function deleteProduct(id: string): Promise<void> {
   return invoke("delete_product", { id });
+}
+export function adjustProductQuantity(produitId: string, delta: number): Promise<void> {
+  return invoke("adjust_product_quantity", { produitId, delta });
 }

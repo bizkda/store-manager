@@ -66,7 +66,10 @@ export const translations = {
   price: "Prix",
   addToCart: "Ajouter au panier",
   invalidManualProduct: "Nom ou prix invalide",
-  
+  edit: "Modifier",
+save: "Enregistrer",
+cancel: "Annuler",
+restockThreshold: "Seuil de réappro",
 
 },
   ar: {
@@ -137,6 +140,11 @@ export const translations = {
 
   addToCart: "أضف إلى السلة",
   invalidManualProduct: "الاسم أو السعر غير صالح",
+
+  edit: "تعديل",
+save: "حفظ",
+cancel: "إلغاء",
+restockThreshold: "حد إعادة التموين",
 
 },
 } as const;

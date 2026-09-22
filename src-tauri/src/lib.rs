@@ -42,6 +42,8 @@ pub fn run() {
             product::commands::add_product,
             product::commands::search_products,
             product::commands::restock_product,
+            product::commands::update_product,
+            product::commands::adjust_product_quantity,
             sale::commands::checkout,
             sync::commands::sync_with_peer,
             sync::commands::get_peers,
